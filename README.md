@@ -16,10 +16,10 @@
 ## One-line Install
 
 ```bash
-curl -sSL https://github.com/redstone-md/MossSpore/releases/latest/download/install.sh | sh
+curl -sSL https://raw.githubusercontent.com/redstone-md/MossSpore/main/install.sh | sh
 ```
 
-Detects your OS and architecture, downloads the matching binary to `/usr/local/bin`,
+Detects your OS and architecture, downloads the latest release binary to `/usr/local/bin`,
 creates a default config, and optionally sets up a systemd service.
 
 Works on **Linux** (amd64 / arm64) and **macOS** (Intel / Apple Silicon).
@@ -30,7 +30,7 @@ Works on **Linux** (amd64 / arm64) and **macOS** (Intel / Apple Silicon).
 
 ```bash
 # 1. One-command install (Linux / macOS)
-curl -sSL https://github.com/redstone-md/MossSpore/releases/latest/download/install.sh | sh
+curl -sSL https://raw.githubusercontent.com/redstone-md/MossSpore/main/install.sh | sh
 
 # 2. Start the relay
 sudo systemctl start mossspore
@@ -93,10 +93,10 @@ mesh relay node. No account, no registration, no central server.
 ### One-line install (recommended)
 
 ```bash
-curl -sSL https://github.com/redstone-md/MossSpore/releases/latest/download/install.sh | sh
+curl -sSL https://raw.githubusercontent.com/redstone-md/MossSpore/main/install.sh | sh
 ```
 
-This downloads the pre-built binary for your platform, installs it to `/usr/local/bin`,
+This downloads the latest pre-built binary for your platform, installs it to `/usr/local/bin`,
 and interactively asks whether you want a systemd service.
 
 ### From source
@@ -306,7 +306,7 @@ Noise DH private key (32). Keep it secret, keep it safe.
 The [install.sh](install.sh) script handles all of this automatically on Linux:
 
 ```bash
-curl -sSL https://github.com/redstone-md/MossSpore/releases/latest/download/install.sh | sh
+curl -sSL https://raw.githubusercontent.com/redstone-md/MossSpore/main/install.sh | sh
 ```
 
 ### Manual systemd (Linux)

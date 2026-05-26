@@ -19,7 +19,7 @@ SHA-256 checksums for all binaries are in `checksums.txt`.
 ### Quick Install
 
 ```bash
-curl -sSL https://github.com/redstone-md/MossSpore/releases/latest/download/install.sh | sh
+curl -sSL https://raw.githubusercontent.com/redstone-md/MossSpore/main/install.sh | sh
 ```
 
 ### Usage
