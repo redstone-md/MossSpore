@@ -1,0 +1,24 @@
+# Binaries
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Go
+go.sum
+vendor/
+
+# Identity files
+*.identity
+*.key

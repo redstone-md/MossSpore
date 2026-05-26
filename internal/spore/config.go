@@ -1,0 +1,138 @@
+package spore
+
+// Config defines the configuration for a MossSpore daemon instance.
+type Config struct {
+	// MeshID is the identifier for the mesh network to join.
+	// Required. Must match the mesh ID used by other nodes.
+	MeshID string `json:"mesh_id"`
+
+	// PSK is an optional pre-shared key hex-encoded string (32 bytes).
+	// If set, all handshakes require knowledge of this key.
+	PSK string `json:"psk,omitempty"`
+
+	// ListenPort is the port for peer connections. 0 means OS-assigned.
+	ListenPort int `json:"listen_port,omitempty"`
+
+	// MaxPeers caps the number of concurrent direct peer connections.
+	MaxPeers int `json:"max_peers,omitempty"`
+
+	// Trackers lists BitTorrent tracker URLs for peer discovery.
+	Trackers []string `json:"trackers,omitempty"`
+
+	// StaticPeers lists peer addresses to always try connecting to.
+	StaticPeers []string `json:"static_peers,omitempty"`
+
+	// AnnounceIntervalSec controls how often the node announces to trackers.
+	AnnounceIntervalSec int `json:"announce_interval_sec,omitempty"`
+
+	// BootstrapTimeoutSec is the timeout for initial tracker responses.
+	BootstrapTimeoutSec int `json:"bootstrap_timeout_sec,omitempty"`
+
+	// LANDiscovery enables automatic peer discovery on the local network.
+	LANDiscovery bool `json:"lan_discovery,omitempty"`
+
+	// Relay configures the relay/supernode behaviour of this spore.
+	Relay RelayConfig `json:"relay"`
+
+	// NAT configures NAT traversal strategies.
+	NAT NATConfig `json:"nat"`
+
+	// Transport configures low-level buffer sizes.
+	Transport TransportConfig `json:"transport"`
+
+	// IdentityPath is the filesystem path for the persistent node identity.
+	// If empty, a new ephemeral identity is generated each start.
+	IdentityPath string `json:"identity_path,omitempty"`
+
+	// Monitor configures the built-in HTTP monitoring endpoint.
+	Monitor MonitorConfig `json:"monitor"`
+
+	// LogDir is the directory for log output. Empty means stdout.
+	LogDir string `json:"log_dir,omitempty"`
+
+	// Verbose enables detailed debug-level logging.
+	Verbose bool `json:"verbose,omitempty"`
+}
+
+// RelayConfig controls relay (supernode) behaviour.
+type RelayConfig struct {
+	// Enabled allows this spore to act as a relay for other peers.
+	// When true, the node will volunteer as a supernode if it has a
+	// public or full-cone NAT.
+	Enabled bool `json:"enabled"`
+
+	// MaxBandwidthKBPS limits relay throughput in kilobytes per second.
+	MaxBandwidthKBPS int `json:"max_bandwidth_kbps,omitempty"`
+
+	// MaxSessions caps the number of concurrent relay sessions.
+	MaxSessions int `json:"max_sessions,omitempty"`
+
+	// SessionTTLSec is the time-to-live for inactive relay sessions.
+	SessionTTLSec int `json:"session_ttl_sec,omitempty"`
+
+	// MinUptimeSec is the minimum uptime before being promoted to supernode.
+	MinUptimeSec int `json:"min_uptime_sec,omitempty"`
+}
+
+// NATConfig controls NAT traversal strategies.
+type NATConfig struct {
+	// UPnP enables UPnP IGD port mapping.
+	UPnP bool `json:"upnp,omitempty"`
+
+	// NATPMP enables NAT-PMP port mapping.
+	NATPMP bool `json:"natpmp,omitempty"`
+
+	// PCP enables PCP port mapping.
+	PCP bool `json:"pcp,omitempty"`
+
+	// HolePunchAttempts is the number of hole-punch attempts per peer.
+	HolePunchAttempts int `json:"hole_punch_attempts,omitempty"`
+}
+
+// TransportConfig controls low-level networking buffers.
+type TransportConfig struct {
+	// HighThroughput enables larger buffers for high-bandwidth use cases.
+	HighThroughput bool `json:"high_throughput,omitempty"`
+}
+
+// MonitorConfig controls the monitoring HTTP endpoint.
+type MonitorConfig struct {
+	// Enabled starts the monitoring HTTP server.
+	Enabled bool `json:"enabled"`
+
+	// Listen is the address:port for the monitoring endpoint.
+	// Default ":9800".
+	Listen string `json:"listen,omitempty"`
+}
+
+// DefaultConfig returns a sensible configuration for a relay-optimised spore.
+func DefaultConfig() Config {
+	return Config{
+		MeshID: "moss-spore-default",
+		Relay: RelayConfig{
+			Enabled:          true,
+			MaxBandwidthKBPS: 1024,
+			MaxSessions:      100,
+			SessionTTLSec:    1800,
+			MinUptimeSec:     60,
+		},
+		NAT: NATConfig{
+			UPnP:              true,
+			NATPMP:            true,
+			PCP:               true,
+			HolePunchAttempts: 3,
+		},
+		Transport: TransportConfig{
+			HighThroughput: true,
+		},
+		Monitor: MonitorConfig{
+			Enabled: true,
+			Listen:  ":9800",
+		},
+		LANDiscovery:        true,
+		AnnounceIntervalSec: 120,
+		BootstrapTimeoutSec: 5,
+		MaxPeers:            200,
+		Verbose:             false,
+	}
+}

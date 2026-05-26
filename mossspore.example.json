@@ -1,0 +1,37 @@
+{
+    "mesh_id": "moss-spore-public",
+    "listen_port": 0,
+    "max_peers": 200,
+    "lan_discovery": true,
+    "identity_path": "/var/lib/mossspore/identity.key",
+
+    "trackers": [
+        "udp://tracker.opentrackr.org:1337/announce",
+        "udp://open.stealth.si:80/announce",
+        "udp://tracker.openbittorrent.com:6969/announce"
+    ],
+
+    "relay": {
+        "enabled": true,
+        "max_bandwidth_kbps": 1024,
+        "max_sessions": 100,
+        "session_ttl_sec": 1800,
+        "min_uptime_sec": 60
+    },
+
+    "nat": {
+        "upnp": true,
+        "natpmp": true,
+        "pcp": true,
+        "hole_punch_attempts": 3
+    },
+
+    "transport": {
+        "high_throughput": true
+    },
+
+    "monitor": {
+        "enabled": true,
+        "listen": ":9800"
+    }
+}
