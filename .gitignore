@@ -16,7 +16,6 @@ Thumbs.db
 *.swo
 
 # Go
-go.sum
 vendor/
 
 # Identity files
