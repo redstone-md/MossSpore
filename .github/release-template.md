@@ -1,10 +1,10 @@
-## MossSpore v0.1.2
+## MossSpore v0.1.3
 
 **Run a Spore, grow the Moss.**
 
 ### What's New
 
-- **NAT detection fixed for bare metal** — Two fixes in Moss `profiler.go`: `WithExternalAddress` preserves `TypeUnknown` instead of downgrading to `port_restricted_cone`; `WithBindingObservations` upgrades `TypeUnknown` → `TypePublic` when external address is global unicast with consistent STUN ports. Servers with all ports open now promote to supernode.
+- **NAT detection fixed for bare metal** — Three fixes in Moss: `WithExternalAddress` preserves `TypeUnknown` instead of downgrading to `port_restricted_cone`; `WithBindingObservations` upgrades `TypeUnknown` → `TypePublic` when external address is global unicast with consistent STUN ports; second STUN fallback now goes through `applyExternalObservation` so `WithBindingObservations` gets the binding history it needs. Servers with all ports open now detect as `public` and promote to supernode.
 
 - **Auto-update mechanism** — New config option `auto_update.enabled`. When enabled, the spore periodically checks GitHub releases, downloads the new binary, verifies SHA256 checksum, creates a backup, applies the update atomically with sentinel-based crash recovery. On Unix, re-execs into the new binary in-place via `syscall.Exec`. If the new binary fails to start, the sentinel triggers a rollback to the previous version on next boot.
 
