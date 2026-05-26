@@ -1,5 +1,5 @@
 {
-    "mesh_id": "moss-spore-public",
+    "mesh_id": "global",
     "listen_port": 0,
     "max_peers": 200,
     "lan_discovery": true,

@@ -1,0 +1,3 @@
+[2m2026-05-26T16:16:27.281262Z[0m [32m INFO[0m [2mcontinuum_daemon[0m[2m:[0m initial index complete: 0 files
+[2m2026-05-26T16:16:27.284299Z[0m [32m INFO[0m [2mcontinuum_daemon[0m[2m:[0m continuum daemon listening on 127.0.0.1:55250 (workspace \\?\D:\code\MossSpore)
+[2m2026-05-26T16:16:27.397144Z[0m [32m INFO[0m [2mcontinuum_daemon[0m[2m:[0m embedding model ready; semantic search enabled (0 files)

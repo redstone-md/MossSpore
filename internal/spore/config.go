@@ -108,7 +108,7 @@ type MonitorConfig struct {
 // DefaultConfig returns a sensible configuration for a relay-optimised spore.
 func DefaultConfig() Config {
 	return Config{
-		MeshID: "moss-spore-default",
+		MeshID: "global",
 		Relay: RelayConfig{
 			Enabled:          true,
 			MaxBandwidthKBPS: 1024,

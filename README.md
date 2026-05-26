@@ -149,7 +149,7 @@ mossspore --config /etc/mossspore/config.json
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `mesh_id` | `string` | `moss-spore-default` | Mesh network identifier **(required)** |
+| `mesh_id` | `string` | `global` | Mesh network identifier **(required)** |
 | `psk` | `string` | `""` | Pre-shared key (64 hex chars, 32 bytes) |
 | `listen_port` | `int` | `0` (OS-assigned) | Peer connection port |
 | `max_peers` | `int` | `200` | Maximum concurrent direct peers |

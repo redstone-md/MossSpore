@@ -118,7 +118,7 @@ setup_config() {
 
   cat <<-EOF | sudo tee "${CONFIGDIR}/config.json" >/dev/null
 {
-  "mesh_id": "moss-spore-$(hostname 2>/dev/null || echo 'node')",
+  "mesh_id": "global",
   "listen_port": 0,
   "identity_path": "${IDENTITYDIR}/identity.key",
   "lan_discovery": true,
