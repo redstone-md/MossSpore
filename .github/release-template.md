@@ -1,10 +1,16 @@
-## MossSpore v0.1.4
+## MossSpore v0.1.5
 
 **Run a Spore, grow the Moss.**
 
 ### What's New
 
-- **NAT detection finally works on bare metal** — After three rounds of fixes in Moss, the root cause was `appendObservation` deduplicating identical STUN results, preventing `WithBindingObservations` from ever seeing 2+ entries. Final fix: fast-path in `applyExternalObservation` upgrades `TypeUnknown` → `TypePublic` immediately when the external address is a global unicast, without waiting for a second observation. Servers with all ports open now detect as `public` within seconds and promote to supernode after min uptime.
+- **NAT detection works on bare metal** — Five cumulative fixes in Moss:
+  1. `WithExternalAddress` preserves `TypeUnknown` instead of downgrading → `port_restricted_cone`
+  2. `WithBindingObservations` upgrades `TypeUnknown` → `TypePublic` for global unicast
+  3. Second STUN fallback calls `applyExternalObservation` to build binding history
+  4. Fast-path in `applyExternalObservation`: immediately upgrade `TypeUnknown` → `TypePublic` for global unicast addresses (bypassing `appendObservation` dedup)
+  5. Skip `confirmReachability` when fast-path already confirmed — prevents peer-less probe from overwriting `PublicReachable = true`
+  Servers with all ports open detect as `"public"` at startup and promote to supernode after min uptime.
 
 - **Auto-update mechanism** — New config option `auto_update.enabled`. When enabled, the spore periodically checks GitHub releases, downloads the new binary, verifies SHA256 checksum, creates a backup, applies the update atomically with sentinel-based crash recovery. On Unix, re-execs into the new binary in-place via `syscall.Exec`. If the new binary fails to start, the sentinel triggers a rollback to the previous version on next boot.
 
