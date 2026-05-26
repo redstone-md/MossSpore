@@ -4,8 +4,8 @@
 # Quick installer: detects OS/arch, downloads the latest release binary,
 # and optionally sets up a systemd service.
 #
-# Usage: curl -sSL https://github.com/redstone-md/MossSpore/releases/latest/download/install.sh | sh
-#        curl -sSL https://github.com/redstone-md/MossSpore/releases/latest/download/install.sh | sh -s -- --version 0.1.0
+# Usage: curl -sSL https://raw.githubusercontent.com/redstone-md/MossSpore/main/install.sh | sh
+#        curl -sSL https://raw.githubusercontent.com/redstone-md/MossSpore/main/install.sh | sh -s -- --version 0.1.0
 
 set -eu
 
