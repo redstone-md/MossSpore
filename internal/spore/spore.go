@@ -1,6 +1,7 @@
 package spore
 
 import (
+	"context"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -8,10 +9,15 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"sync"
 	"syscall"
+	"time"
 
 	"moss"
+
+	"github.com/moss/mossspore/internal/update"
+	"github.com/moss/mossspore/internal/version"
 )
 
 // Event type labels for human-readable logging.
@@ -31,6 +37,7 @@ type Spore struct {
 	cfg     Config
 	node    *moss.Node
 	monitor *Monitor
+	updater *update.Updater
 	mu      sync.Mutex
 	wg      sync.WaitGroup
 	stopped chan struct{}
@@ -38,14 +45,23 @@ type Spore struct {
 
 // New creates a new Spore daemon from the given configuration.
 func New(cfg Config) (*Spore, error) {
-	return &Spore{
+	dataDir := defaultDataDir()
+	s := &Spore{
 		cfg:     cfg,
 		stopped: make(chan struct{}),
-	}, nil
+	}
+	if cfg.AutoUpdate.Enabled {
+		s.updater = update.NewUpdater(version.Version, dataDir)
+	}
+	return s, nil
 }
 
 // Start initialises the Moss node and begins operation.
 func (s *Spore) Start() error {
+	if err := s.resolveUpdate(); err != nil {
+		log.Printf("[spore] update cleanup: %v", err)
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -93,6 +109,10 @@ func (s *Spore) Start() error {
 			m.ServeOn(ln)
 		}()
 		log.Printf("[spore] monitor listening on %s", ln.Addr().String())
+	}
+
+	if s.updater != nil {
+		s.startUpdateLoop()
 	}
 
 	return nil
@@ -221,6 +241,64 @@ func (s *Spore) toMossConfig() moss.Config {
 	cfg.IdentityPath = s.cfg.IdentityPath
 
 	return cfg
+}
+
+// resolveUpdate handles update sentinel cleanup/rollback at startup.
+func (s *Spore) resolveUpdate() error {
+	if s.updater == nil {
+		return nil
+	}
+	return s.updater.CleanupOnStart()
+}
+
+// startUpdateLoop begins the periodic update check in a background goroutine.
+func (s *Spore) startUpdateLoop() {
+	interval := 24 * time.Hour
+	if s.cfg.AutoUpdate.Interval != "" {
+		if d, err := time.ParseDuration(s.cfg.AutoUpdate.Interval); err == nil && d > 0 {
+			interval = d
+		}
+	}
+
+	s.wg.Add(1)
+	go func() {
+		defer s.wg.Done()
+
+		// Check immediately on start, then on ticker.
+		s.checkUpdateNow()
+
+		ticker := time.NewTicker(interval)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ticker.C:
+				s.checkUpdateNow()
+			case <-s.stopped:
+				return
+			}
+		}
+	}()
+}
+
+func (s *Spore) checkUpdateNow() {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	if err := s.updater.DoFullUpdate(ctx); err != nil {
+		log.Printf("[update] %v", err)
+	}
+}
+
+// defaultDataDir returns the directory for update state and other spore data.
+func defaultDataDir() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return filepath.Join(os.TempDir(), "mossspore")
+	}
+	dir := filepath.Join(home, ".local", "share", "mossspore")
+	_ = os.MkdirAll(dir, 0700)
+	return dir
 }
 
 func (s *Spore) parsePSK() ([]byte, error) {

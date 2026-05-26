@@ -33,5 +33,10 @@
     "monitor": {
         "enabled": true,
         "listen": ":9800"
+    },
+
+    "auto_update": {
+        "enabled": false,
+        "interval": "24h"
     }
 }

@@ -52,6 +52,18 @@ type Config struct {
 
 	// Verbose enables detailed debug-level logging.
 	Verbose bool `json:"verbose,omitempty"`
+
+	// AutoUpdate enables automatic binary updates from GitHub releases.
+	AutoUpdate AutoUpdateConfig `json:"auto_update"`
+}
+
+// AutoUpdateConfig controls the automatic update behaviour.
+type AutoUpdateConfig struct {
+	// Enabled periodically checks GitHub for new releases and applies them.
+	Enabled bool `json:"enabled"`
+
+	// Interval between update checks. Default "24h".
+	Interval string `json:"interval,omitempty"`
 }
 
 // RelayConfig controls relay (supernode) behaviour.
@@ -132,7 +144,11 @@ func DefaultConfig() Config {
 		LANDiscovery:        true,
 		AnnounceIntervalSec: 120,
 		BootstrapTimeoutSec: 5,
-		MaxPeers:            200,
-		Verbose:             false,
+		MaxPeers: 200,
+		Verbose:  false,
+		AutoUpdate: AutoUpdateConfig{
+			Enabled:  false,
+			Interval: "24h",
+		},
 	}
 }

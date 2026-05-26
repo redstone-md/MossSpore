@@ -172,6 +172,8 @@ mossspore --config /etc/mossspore/config.json
 | `monitor.enabled` | `bool` | `true` | Enable monitoring HTTP endpoint |
 | `monitor.listen` | `string` | `:9800` | Monitoring endpoint address |
 | `identity_path` | `string` | `""` | Identity persistence file |
+| `auto_update.enabled` | `bool` | `false` | Automatic binary updates |
+| `auto_update.interval` | `string` | `"24h"` | Update check interval |
 | `verbose` | `bool` | `false` | Debug-level logging |
 
 ---
