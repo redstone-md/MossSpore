@@ -1,6 +1,10 @@
-## MossSpore Release
+## MossSpore v0.1.1
 
 **Run a Spore, grow the Moss.**
+
+### What's New
+
+- **Fixed NAT detection on bare metal** — `profiler.go` in Moss no longer downgrades `TypeUnknown` to `port_restricted_cone` when a public STUN address is obtained. Servers with all ports open now correctly get `PublicReachable`, enabling supernode promotion.
 
 ### Binaries
 
