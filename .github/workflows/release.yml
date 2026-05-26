@@ -1,0 +1,111 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: linux-amd64
+            goos: linux
+            goarch: amd64
+            ext: ""
+          - name: linux-arm64
+            goos: linux
+            goarch: arm64
+            ext: ""
+          - name: darwin-amd64
+            goos: darwin
+            goarch: amd64
+            ext: ""
+          - name: darwin-arm64
+            goos: darwin
+            goarch: arm64
+            ext: ""
+          - name: windows-amd64
+            goos: windows
+            goarch: amd64
+            ext: ".exe"
+
+    steps:
+      - name: Checkout MossSpore
+        uses: actions/checkout@v4
+        with:
+          path: mossspore
+
+      - name: Checkout Moss dependency
+        uses: actions/checkout@v4
+        with:
+          repository: redstone-md/moss
+          path: moss
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: |
+            mossspore/go.sum
+            moss/go.sum
+
+      - name: Build
+        working-directory: mossspore
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: "0"
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          COMMIT="${GITHUB_SHA}"
+          DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          go build \
+            -ldflags="-X github.com/moss/mossspore/internal/version.Version=${VERSION} \
+                      -X github.com/moss/mossspore/internal/version.Commit=${COMMIT} \
+                      -X github.com/moss/mossspore/internal/version.Date=${DATE}" \
+            -o "mossspore-${{ matrix.name }}${{ matrix.ext }}" \
+            ./cmd/mossspore
+
+      - name: Archive artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mossspore-${{ matrix.name }}
+          path: mossspore/mossspore-${{ matrix.name }}${{ matrix.ext }}
+          if-no-files-found: error
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Compute checksums
+        working-directory: artifacts
+        run: |
+          find . -type f | sort | while read f; do
+            sum=$(sha256sum "$f" | cut -d' ' -f1)
+            name=$(basename "$f")
+            echo "${sum}  ${name}"
+          done > checksums.txt
+          cat checksums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          body_path: mossspore/.github/release-template.md
+          fail_on_unmatched_files: true
+          files: |
+            artifacts/*/mossspore-*
+            artifacts/checksums.txt

@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test and Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout MossSpore
+        uses: actions/checkout@v4
+        with:
+          path: mossspore
+
+      - name: Checkout Moss dependency
+        uses: actions/checkout@v4
+        with:
+          repository: redstone-md/moss
+          path: moss
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: |
+            mossspore/go.sum
+            moss/go.sum
+
+      - name: Vet
+        working-directory: mossspore
+        run: go vet ./...
+
+      - name: Test
+        working-directory: mossspore
+        run: go test ./...
+
+      - name: Build
+        working-directory: mossspore
+        env:
+          CGO_ENABLED: "0"
+        run: go build -o /dev/null ./cmd/mossspore
+
+  build-matrix:
+    name: Build ${{ matrix.name }}
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: linux-amd64
+            goos: linux
+            goarch: amd64
+            ext: ""
+          - name: linux-arm64
+            goos: linux
+            goarch: arm64
+            ext: ""
+          - name: darwin-amd64
+            goos: darwin
+            goarch: amd64
+            ext: ""
+          - name: darwin-arm64
+            goos: darwin
+            goarch: arm64
+            ext: ""
+          - name: windows-amd64
+            goos: windows
+            goarch: amd64
+            ext: ".exe"
+
+    steps:
+      - name: Checkout MossSpore
+        uses: actions/checkout@v4
+        with:
+          path: mossspore
+
+      - name: Checkout Moss dependency
+        uses: actions/checkout@v4
+        with:
+          repository: redstone-md/moss
+          path: moss
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: |
+            mossspore/go.sum
+            moss/go.sum
+
+      - name: Build
+        working-directory: mossspore
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: "0"
+        run: go build -o mossspore-${{ matrix.name }}${{ matrix.ext }} ./cmd/mossspore
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mossspore-${{ matrix.name }}
+          path: mossspore/mossspore-${{ matrix.name }}${{ matrix.ext }}
+          if-no-files-found: error

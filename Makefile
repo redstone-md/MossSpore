@@ -7,21 +7,29 @@ LDFLAGS := -ldflags="-X github.com/moss/mossspore/internal/version.Version=$(VER
 
 BINDIR := build
 
-.PHONY: all build build-linux build-windows build-darwin clean test lint run
+.PHONY: all build build-linux build-windows build-darwin build-all clean test lint run
 
 all: build
 
 build:
 	$(GO) build $(LDFLAGS) -o $(BINDIR)/$(NAME)$(shell go env GOEXE) ./cmd/$(NAME)
 
-build-linux:
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(GO) build $(LDFLAGS) -o $(BINDIR)/$(NAME)-linux-amd64 ./cmd/$(NAME)
+build-linux-amd64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build $(LDFLAGS) -o $(BINDIR)/$(NAME)-linux-amd64 ./cmd/$(NAME)
 
-build-windows:
-	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 $(GO) build $(LDFLAGS) -o $(BINDIR)/$(NAME)-windows-amd64.exe ./cmd/$(NAME)
+build-linux-arm64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build $(LDFLAGS) -o $(BINDIR)/$(NAME)-linux-arm64 ./cmd/$(NAME)
 
-build-darwin:
-	GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 $(GO) build $(LDFLAGS) -o $(BINDIR)/$(NAME)-darwin-arm64 ./cmd/$(NAME)
+build-darwin-amd64:
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GO) build $(LDFLAGS) -o $(BINDIR)/$(NAME)-darwin-amd64 ./cmd/$(NAME)
+
+build-darwin-arm64:
+	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 $(GO) build $(LDFLAGS) -o $(BINDIR)/$(NAME)-darwin-arm64 ./cmd/$(NAME)
+
+build-windows-amd64:
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GO) build $(LDFLAGS) -o $(BINDIR)/$(NAME)-windows-amd64.exe ./cmd/$(NAME)
+
+build-all: build-linux-amd64 build-linux-arm64 build-darwin-amd64 build-darwin-arm64 build-windows-amd64
 
 clean:
 	rm -rf $(BINDIR)

@@ -1,5 +1,6 @@
 # MossSpore
 
+[![CI](https://github.com/redstone-md/MossSpore/actions/workflows/ci.yml/badge.svg)](https://github.com/redstone-md/MossSpore/actions/workflows/ci.yml)
 [![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go)](https://go.dev)
 [![License](https://img.shields.io/badge/license-MIT-brightgreen)](LICENSE)
 [![Moss](https://img.shields.io/badge/powered%20by-Moss-2ea44f)](https://github.com/redstone-md/moss)
@@ -9,6 +10,38 @@
 > MossSpore is a lightweight, headless relay daemon for the Moss P2P mesh protocol.
 > Each instance is a new point of presence — it relays traffic, coordinates routes,
 > and fills coverage gaps. Launch-and-forget infrastructure for a decentralised world.
+
+---
+
+## One-line Install
+
+```bash
+curl -sSL https://github.com/redstone-md/MossSpore/releases/latest/download/install.sh | sh
+```
+
+Detects your OS and architecture, downloads the matching binary to `/usr/local/bin`,
+creates a default config, and optionally sets up a systemd service.
+
+Works on **Linux** (amd64 / arm64) and **macOS** (Intel / Apple Silicon).
+
+---
+
+## Quick Start
+
+```bash
+# 1. One-command install (Linux / macOS)
+curl -sSL https://github.com/redstone-md/MossSpore/releases/latest/download/install.sh | sh
+
+# 2. Start the relay
+sudo systemctl start mossspore
+
+# 3. Check that it's alive
+curl http://127.0.0.1:9800/health
+# → {"status":"ok","nat_type":"port_restricted_cone"}
+
+# 4. Or run directly (no service)
+mossspore --mesh-id my-mesh --identity-path ~/.mossspore/identity.key
+```
 
 ---
 
@@ -56,6 +89,15 @@ mesh relay node. No account, no registration, no central server.
 ---
 
 ## Installation
+
+### One-line install (recommended)
+
+```bash
+curl -sSL https://github.com/redstone-md/MossSpore/releases/latest/download/install.sh | sh
+```
+
+This downloads the pre-built binary for your platform, installs it to `/usr/local/bin`,
+and interactively asks whether you want a systemd service.
 
 ### From source
 
@@ -261,12 +303,18 @@ Noise DH private key (32). Keep it secret, keep it safe.
 
 ## Running as a Service
 
-### systemd (Linux)
+The [install.sh](install.sh) script handles all of this automatically on Linux:
+
+```bash
+curl -sSL https://github.com/redstone-md/MossSpore/releases/latest/download/install.sh | sh
+```
+
+### Manual systemd (Linux)
 
 ```ini
 [Unit]
 Description=MossSpore P2P Relay Daemon
-Documentation=https://github.com/moss/MossSpore
+Documentation=https://github.com/redstone-md/MossSpore
 After=network-online.target
 Wants=network-online.target
 
@@ -314,11 +362,13 @@ docker run -d --restart=always -p 9800:9800 mossspore
 ## Project Map
 
 ```
-cmd/mossspore/       CLI entry point — flags, config loading, lifecycle
-internal/spore/      Core daemon — node management, event handling, monitor
-internal/version/    Build version injection
+cmd/mossspore/           CLI entry point — flags, config loading, lifecycle
+internal/spore/          Core daemon — node management, event handling, monitor
+internal/version/        Build version injection
+.github/workflows/       CI + Release GitHub Actions workflows
+install.sh               One-line installer (curl pipe)
 mossspore.example.json   Documented configuration template
-Makefile             Build targets for Linux / Windows / macOS
+Makefile                 Build targets for Linux / Windows / macOS
 ```
 
 ---
