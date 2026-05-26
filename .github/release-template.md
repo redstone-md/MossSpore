@@ -1,4 +1,4 @@
-## MossSpore v0.1.5
+## MossSpore v0.1.6
 
 **Run a Spore, grow the Moss.**
 
