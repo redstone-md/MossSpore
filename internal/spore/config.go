@@ -144,8 +144,8 @@ func DefaultConfig() Config {
 		LANDiscovery:        true,
 		AnnounceIntervalSec: 120,
 		BootstrapTimeoutSec: 5,
-		MaxPeers: 200,
-		Verbose:  false,
+		MaxPeers:            200,
+		Verbose:             false,
 		AutoUpdate: AutoUpdateConfig{
 			Enabled:  false,
 			Interval: "24h",
