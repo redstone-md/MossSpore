@@ -14,7 +14,6 @@
         "udp://exodus.desync.com:6969/announce",
         "http://tracker.openbittorrent.com:80/announce"
     ],
-    "dht_enabled": true,
 
     "relay": {
         "enabled": true,
