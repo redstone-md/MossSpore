@@ -1,8 +1,15 @@
-## MossSpore v0.3.1
+## MossSpore v0.3.2
 
 **Run a Spore, grow the Moss.**
 
 ### Fixed
+
+- **Clients that join after promotion now see the spore as a relay.** A SuperNode
+  advertised its relay capability only once, at promotion — so a client that
+  connected afterwards (the normal case) never learned it could relay through the
+  spore, and relay selection found nothing. The spore now periodically
+  re-announces its SuperNode status, so every connected peer converges (~10s)
+  regardless of when it joined. Bundled Moss core bumped to `f3bb2fb`.
 
 - **NAT detection on IPv4-only hosts.** The bundled Moss core now resolves STUN
   and peer addresses as IPv4 to match its IPv4-only transport. Previously, on a
