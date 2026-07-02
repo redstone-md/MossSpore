@@ -124,11 +124,13 @@ Binaries are statically linked and require no runtime dependencies.
 ## Configuration
 
 MossSpore works out of the box with sensible defaults tuned for relay operation.
-Override anything via JSON config file:
+By default a spore joins the shared relay mesh `moss-relay/1` — you do NOT set
+`mesh_id` for that (relay-mesh mode overrides it; see [Relay-mesh mode](#relay-mesh-mode)).
+Override anything else via a JSON config file:
 
 ```json
 {
-  "mesh_id": "moss-spore-production",
+  "relay_mesh": { "enabled": true },
   "listen_port": 4001,
   "identity_path": "/var/lib/mossspore/identity.key",
 
@@ -145,6 +147,10 @@ Override anything via JSON config file:
 }
 ```
 
+> To run a standalone spore on a private mesh instead, opt out with
+> `{ "relay_mesh": { "enabled": false }, "mesh_id": "my-private-mesh" }` — otherwise
+> any `mesh_id` you set is silently replaced by `moss-relay/1`.
+
 ```bash
 mossspore --config /etc/mossspore/config.json
 ```
@@ -153,7 +159,7 @@ mossspore --config /etc/mossspore/config.json
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `mesh_id` | `string` | `global` | Mesh network identifier **(required)** |
+| `mesh_id` | `string` | `moss-relay/1` (via relay-mesh mode; `global` only when opted out) | Mesh network identifier. **Ignored in relay-mesh mode** (the default) — set `relay_mesh.enabled=false` to honor it |
 | `psk` | `string` | `""` | Pre-shared key (64 hex chars, 32 bytes) |
 | `listen_port` | `int` | `0` (OS-assigned) | Peer connection port |
 | `max_peers` | `int` | `200` | Maximum concurrent direct peers |
