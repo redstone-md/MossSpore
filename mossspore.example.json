@@ -1,9 +1,13 @@
 {
-    "mesh_id": "global",
+    "mesh_id": "moss-relay/1",
     "listen_port": 0,
     "max_peers": 200,
     "lan_discovery": true,
     "identity_path": "/var/lib/mossspore/identity.key",
+
+    "relay_mesh": {
+        "enabled": true
+    },
 
     "trackers": [
         "udp://tracker.opentrackr.org:1337/announce",

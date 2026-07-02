@@ -66,6 +66,8 @@ func resolveConfig(configPath, meshID string, listenPort int, verbose bool) spor
 		log.Printf("loaded config from %s", configPath)
 	}
 
+	cfg.Normalize()
+
 	if meshID != "" {
 		cfg.MeshID = meshID
 	}

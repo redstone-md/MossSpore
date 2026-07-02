@@ -1,5 +1,11 @@
 package spore
 
+import "path/filepath"
+
+// RelayMeshID is the shared relay mesh every default spore joins. Must match
+// mosh's RELAY_MESH_ID (private_dm_runtime/relay.rs).
+const RelayMeshID = "moss-relay/1"
+
 // Config defines the configuration for a MossSpore daemon instance.
 type Config struct {
 	// MeshID is the identifier for the mesh network to join.
@@ -41,8 +47,12 @@ type Config struct {
 	Transport TransportConfig `json:"transport"`
 
 	// IdentityPath is the filesystem path for the persistent node identity.
-	// If empty, a new ephemeral identity is generated each start.
+	// If empty, Normalize defaults it to a path under the state dir so the
+	// spore keeps a stable peer-id across restarts.
 	IdentityPath string `json:"identity_path,omitempty"`
+
+	// RelayMesh configures shared-relay-mesh mode. Default on.
+	RelayMesh RelayMeshConfig `json:"relay_mesh"`
 
 	// Monitor configures the built-in HTTP monitoring endpoint.
 	Monitor MonitorConfig `json:"monitor"`
@@ -84,6 +94,14 @@ type RelayConfig struct {
 
 	// MinUptimeSec is the minimum uptime before being promoted to supernode.
 	MinUptimeSec int `json:"min_uptime_sec,omitempty"`
+}
+
+// RelayMeshConfig enables shared-relay-mesh mode: the spore joins RelayMeshID
+// and volunteers as a SuperNode for the whole pool. Default on.
+type RelayMeshConfig struct {
+	// Enabled points this spore at the shared relay mesh. When true it
+	// overrides MeshID with RelayMeshID. Set false for a single-mesh spore.
+	Enabled bool `json:"enabled"`
 }
 
 // NATConfig controls NAT traversal strategies.
@@ -150,5 +168,26 @@ func DefaultConfig() Config {
 			Enabled:  false,
 			Interval: "24h",
 		},
+		RelayMesh: RelayMeshConfig{
+			Enabled: true,
+		},
+	}
+}
+
+// defaultIdentityPath returns the persistent identity file under the state dir,
+// so a spore keeps a stable peer-id / SuperNode identity across restarts.
+func defaultIdentityPath() string {
+	return filepath.Join(defaultDataDir(), "identity.key")
+}
+
+// Normalize applies the relay-mesh mode and persistent-identity defaults. Call
+// after loading a config file and BEFORE applying explicit CLI flag overrides,
+// so an explicit --mesh-id still wins.
+func (c *Config) Normalize() {
+	if c.RelayMesh.Enabled {
+		c.MeshID = RelayMeshID
+	}
+	if c.IdentityPath == "" {
+		c.IdentityPath = defaultIdentityPath()
 	}
 }
