@@ -1,8 +1,17 @@
-## MossSpore v0.3.0
+## MossSpore v0.3.1
 
 **Run a Spore, grow the Moss.**
 
-### What's New
+### Fixed
+
+- **NAT detection on IPv4-only hosts.** The bundled Moss core now resolves STUN
+  and peer addresses as IPv4 to match its IPv4-only transport. Previously, on a
+  host with no IPv6 route (common on VPS/cloud), STUN could resolve to an IPv6
+  address and stall — leaving a genuinely public spore stuck at
+  `nat_type: unknown`, never promoting to SuperNode. Such spores now detect
+  `public` and promote correctly once a peer connects.
+
+### Relay mode (since v0.3.0)
 
 - **Relay-mesh mode, on by default.** A spore now joins the shared relay mesh
   `moss-relay/1` out of the box and, once it detects a public/full-cone NAT and
