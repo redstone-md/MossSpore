@@ -1,0 +1,23 @@
+{
+    "mesh_id": "moss-relay/1",
+    "listen_port": 4001,
+    "identity_path": "/var/lib/mossspore/identity.key",
+    "lan_discovery": true,
+
+    "relay_mesh": {
+        "enabled": true
+    },
+
+    "relay": {
+        "enabled": true,
+        "max_bandwidth_kbps": 1024,
+        "max_sessions": 100,
+        "session_ttl_sec": 1800,
+        "min_uptime_sec": 60
+    },
+
+    "monitor": {
+        "enabled": true,
+        "listen": ":9800"
+    }
+}

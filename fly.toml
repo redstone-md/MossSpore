@@ -1,0 +1,78 @@
+# Fly.io config for a MossSpore relay node (a SuperNode candidate on the
+# shared relay mesh `moss-relay/1` — see README.md "Relay-mesh mode").
+#
+# BUILD CONTEXT: like ../Dockerfile, this build needs the PARENT directory
+# (the one containing both MossSpore/ and moss/) as its Docker build
+# context, because MossSpore/go.mod has `replace moss => ../moss`. flyctl's
+# [build] section has no `context` key — the build context is always the
+# directory you run `fly deploy` from (or its first positional argument).
+# So deploy FROM the parent directory:
+#
+#   cd ..                                        # dir with both MossSpore/ and moss/
+#   fly apps create <your-app-name>
+#   fly volumes create mossspore_data --app <your-app-name> --region <region> --size 1
+#   fly ips allocate-v4 --app <your-app-name>
+#     # ^ dedicated IPv4 — the raw peer TCP/UDP port needs a real address,
+#     #   not just the shared/anycast IP that only proxies [http_service].
+#   fly deploy . --config MossSpore/fly.toml --dockerfile MossSpore/Dockerfile --app <your-app-name>
+#
+# Rename `app` below before deploying — Fly app names are globally unique.
+# `primary_region` is a starting suggestion; pick whatever's closest to you.
+
+app = "mossspore"
+primary_region = "iad"
+
+[build]
+  dockerfile = "MossSpore/Dockerfile"
+
+# Monitor endpoint (/health, /info, /version). A relay's whole job is to be
+# reachable, so auto_stop_machines is "off" — never let Fly suspend it for
+# "no traffic".
+[http_service]
+  internal_port = 9800
+  force_https = true
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/health"
+    protocol = "http"
+
+# Peer port: moss binds ONE port number for both TCP and UDP (see the
+# Dockerfile comment on transport.ListenPair). Requires the dedicated IPv4
+# allocated above.
+[[services]]
+  protocol = "tcp"
+  internal_port = 4001
+
+  [[services.ports]]
+    port = 4001
+
+[[services]]
+  protocol = "udp"
+  internal_port = 4001
+
+  [[services.ports]]
+    port = 4001
+
+# Fly's UDP proxy only reaches sockets bound to this special in-VM hostname,
+# not 0.0.0.0. moss's listener honours MOSS_LISTEN_HOST for exactly this —
+# see moss/internal/transport/listener.go (listenHost).
+[env]
+  MOSS_LISTEN_HOST = "fly-global-services"
+
+# Persistent identity (see README.md "Identity Persistence") so this spore
+# keeps the same peer id / SuperNode identity across restarts and Fly
+# machine replacements. Path must match docker/config.json's identity_path.
+[[mounts]]
+  source = "mossspore_data"
+  destination = "/var/lib/mossspore"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

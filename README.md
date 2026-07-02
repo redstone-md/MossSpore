@@ -24,6 +24,10 @@ creates a default config, and optionally sets up a systemd service.
 
 Works on **Linux** (amd64 / arm64) and **macOS** (Intel / Apple Silicon).
 
+Prefer Docker or Fly.io, or need to know which ports to open? See
+[docs/running-a-spore.md](docs/running-a-spore.md) — a 2-minute guide
+covering VPS install, Docker, and Fly.io.
+
 ---
 
 ## Quick Start
@@ -153,7 +157,7 @@ mossspore --config /etc/mossspore/config.json
 | `psk` | `string` | `""` | Pre-shared key (64 hex chars, 32 bytes) |
 | `listen_port` | `int` | `0` (OS-assigned) | Peer connection port |
 | `max_peers` | `int` | `200` | Maximum concurrent direct peers |
-| `identity_path` | `string` | `""` (ephemeral) | Path to persist Ed25519 + Noise identity |
+| `identity_path` | `string` | `~/.local/share/mossspore/identity.key` (auto) | Path to persist Ed25519 + Noise identity — always on, see [Identity Persistence](#identity-persistence) |
 | `lan_discovery` | `bool` | `true` | LAN multicast peer discovery |
 | `trackers` | `[]string` | Moss defaults | BitTorrent tracker announce URLs |
 | `static_peers` | `[]string` | `[]` | Always-connect peer addresses |
@@ -171,10 +175,41 @@ mossspore --config /etc/mossspore/config.json
 | `transport.high_throughput` | `bool` | `true` | Large buffers for relay traffic |
 | `monitor.enabled` | `bool` | `true` | Enable monitoring HTTP endpoint |
 | `monitor.listen` | `string` | `:9800` | Monitoring endpoint address |
-| `identity_path` | `string` | `""` | Identity persistence file |
-| `auto_update.enabled` | `bool` | `false` | Automatic binary updates |
+| `relay_mesh.enabled` | `bool` | `true` | Join the shared relay mesh `moss-relay/1`, overriding `mesh_id` — see [Relay-mesh mode](#relay-mesh-mode). Set `false` for a standalone single-mesh spore |
+| `auto_update.enabled` | `bool` | `false` | Automatic binary updates — off by default; safe to enable for hands-off fleets |
 | `auto_update.interval` | `string` | `"24h"` | Update check interval |
 | `verbose` | `bool` | `false` | Debug-level logging |
+
+---
+
+## Relay-mesh mode
+
+By default every spore joins **`moss-relay/1`**, a mesh shared by every
+MossSpore instance and by mosh clients that ship a bundled relay-spore
+bootstrap list — not whatever mesh `mesh_id` names. This is controlled by
+`relay_mesh.enabled` (default `true`) and applied by `Config.Normalize()`,
+which runs *after* the config file loads but *before* `--mesh-id` /
+`--listen-port` flags, so an explicit `--mesh-id` still wins.
+
+Opt a spore out to run it as a standalone relay on a mesh of your choosing:
+
+```json
+{ "relay_mesh": { "enabled": false }, "mesh_id": "my-private-mesh" }
+```
+
+### Reachability requirement
+
+A spore only becomes a **SuperNode** — a relay other peers can actually
+route through — if its peer port (the single UDP+TCP port from
+`listen_port`) is reachable from the internet, inbound. Behind a symmetric
+NAT or CGNAT the spore still relays fine for its own traffic, but is never
+promoted. Check `GET /info`'s `nat_type` and `supernode_ready` (below) to
+confirm; promotion happens `relay.min_uptime_sec` (default `60`s) after
+startup, once reachability is confirmed.
+
+See **[docs/running-a-spore.md](docs/running-a-spore.md)** for a 2-minute
+guide to running a reachable spore via VPS one-line install, Docker, or
+Fly.io — including which ports to open for each.
 
 ---
 
@@ -293,10 +328,15 @@ MossSpore stores it in the file specified by `identity_path`:
 }
 ```
 
-If the file exists, the identity is loaded. Otherwise a new one is generated
-and written. Without `identity_path`, a new ephemeral identity is created on
-every start — fine for testing, but running a public spore should use a
-persistent identity so peers recognise you across restarts.
+**Persistent identity is on by default.** If you leave `identity_path`
+empty, `Config.Normalize()` fills in `~/.local/share/mossspore/identity.key`
+rather than generating a throwaway identity — so a spore keeps a stable peer
+id / SuperNode identity across restarts even with a bare-bones config. If
+the file exists, the identity is loaded; otherwise a new one is generated
+and written. Point `identity_path` at durable storage (a systemd
+`StateDirectory`, a Docker/Fly volume — see
+[docs/running-a-spore.md](docs/running-a-spore.md)) so it actually survives
+restarts.
 
 The identity file is 97 bytes: version byte (1) + ed25519 private key (64) +
 Noise DH private key (32). Keep it secret, keep it safe.
@@ -344,19 +384,21 @@ nssm set MossSpore AppRestartDelay 30000
 nssm start MossSpore
 ```
 
-### Docker
+### Docker / Fly.io
 
-```dockerfile
-FROM alpine:latest
-COPY mossspore /usr/local/bin/
-COPY config.json /etc/mossspore/
-EXPOSE 9800
-ENTRYPOINT ["mossspore", "--config", "/etc/mossspore/config.json"]
-```
+MossSpore ships a [`Dockerfile`](Dockerfile) and [`fly.toml`](fly.toml) for
+container deployment — see **[docs/running-a-spore.md](docs/running-a-spore.md)**
+for the full walkthrough (the build-context requirement from the `moss`
+sibling module, port mapping, the persistent-identity volume, and Fly's
+dedicated-IPv4 step for the peer port).
 
 ```bash
-docker build -t mossspore .
-docker run -d --restart=always -p 9800:9800 mossspore
+# from the directory that contains both MossSpore/ and moss/
+docker build -f MossSpore/Dockerfile -t mossspore ..
+docker run -d --restart=always \
+  -p 4001:4001/tcp -p 4001:4001/udp -p 9800:9800/tcp \
+  -v mossspore_data:/var/lib/mossspore \
+  mossspore
 ```
 
 ---
@@ -364,13 +406,17 @@ docker run -d --restart=always -p 9800:9800 mossspore
 ## Project Map
 
 ```
-cmd/mossspore/           CLI entry point — flags, config loading, lifecycle
-internal/spore/          Core daemon — node management, event handling, monitor
-internal/version/        Build version injection
-.github/workflows/       CI + Release GitHub Actions workflows
-install.sh               One-line installer (curl pipe)
-mossspore.example.json   Documented configuration template
-Makefile                 Build targets for Linux / Windows / macOS
+cmd/mossspore/            CLI entry point — flags, config loading, lifecycle
+internal/spore/           Core daemon — node management, event handling, monitor
+internal/version/         Build version injection
+.github/workflows/        CI + Release GitHub Actions workflows
+install.sh                One-line installer (curl pipe)
+mossspore.example.json    Documented configuration template
+docker/config.json        Default relay-mesh config baked into the Docker image
+docs/running-a-spore.md   2-minute deployment guide (VPS / Docker / Fly.io)
+Dockerfile                Multi-stage image build (context = parent dir — see file header)
+fly.toml                  Fly.io app config (peer TCP/UDP + monitor + identity volume)
+Makefile                  Build targets for Linux / Windows / macOS
 ```
 
 ---
