@@ -74,6 +74,10 @@ func (m *Monitor) handleHealth(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// handleInfo returns node.MeshInfoJSON() verbatim — it already carries
+// relay_session_count, relay_route_count and supernode_ready for pool
+// dashboards. relay_bytes_total is deferred: moss exposes no relay byte
+// counter yet; add it here once moss's MeshInfo does.
 func (m *Monitor) handleInfo(w http.ResponseWriter, r *http.Request) {
 	node := m.node
 	if node == nil {
