@@ -1,27 +1,33 @@
-## MossSpore v0.1.6
+## MossSpore v0.3.0
 
 **Run a Spore, grow the Moss.**
 
 ### What's New
 
-- **NAT detection works on bare metal** — Five cumulative fixes in Moss:
-  1. `WithExternalAddress` preserves `TypeUnknown` instead of downgrading → `port_restricted_cone`
-  2. `WithBindingObservations` upgrades `TypeUnknown` → `TypePublic` for global unicast
-  3. Second STUN fallback calls `applyExternalObservation` to build binding history
-  4. Fast-path in `applyExternalObservation`: immediately upgrade `TypeUnknown` → `TypePublic` for global unicast addresses (bypassing `appendObservation` dedup)
-  5. Skip `confirmReachability` when fast-path already confirmed — prevents peer-less probe from overwriting `PublicReachable = true`
-  Servers with all ports open detect as `"public"` at startup and promote to supernode after min uptime.
+- **Relay-mesh mode, on by default.** A spore now joins the shared relay mesh
+  `moss-relay/1` out of the box and, once it detects a public/full-cone NAT and
+  meets the uptime bar, promotes itself to a SuperNode that relays direct
+  messages for Mosh peers stuck behind hard/carrier-grade NAT. The relay only
+  ever forwards ciphertext — it cannot read the messages it carries. Opt out
+  with `"relay_mesh": { "enabled": false }` to run a private mesh instead.
 
-- **Auto-update mechanism** — New config option `auto_update.enabled`. When enabled, the spore periodically checks GitHub releases, downloads the new binary, verifies SHA256 checksum, creates a backup, applies the update atomically with sentinel-based crash recovery. On Unix, re-execs into the new binary in-place via `syscall.Exec`. If the new binary fails to start, the sentinel triggers a rollback to the previous version on next boot.
+- **Stable identity by default.** The node key is persisted under the state
+  directory (`/var/lib/mossspore` via systemd `StateDirectory`, or the platform
+  data dir), so a spore keeps the same peer-id across restarts and upgrades
+  instead of re-rolling on every boot.
 
-  ```json
-  {
-    "auto_update": {
-      "enabled": true,
-      "interval": "24h"
-    }
-  }
-  ```
+- **Relay observability on `/info`.** The status endpoint now reports
+  `relay_session_count`, `relay_route_count`, and `supernode_ready` so you can
+  confirm a spore is actually relaying.
+
+- **One-command deploy.**
+  - `install.sh` writes a ready-to-run relay-mesh config, provisions the state
+    directory, and prints a reachability notice (open UDP/TCP `4001`).
+  - **Docker**: `docker build -f MossSpore/Dockerfile ..` (parent context so the
+    bundled `../moss` resolves); baked relay-mesh config, identity on a volume.
+  - **Fly.io**: `fly.toml` with UDP+TCP `4001`, a persistent volume, and a
+    `/health` check.
+  - New guide: `docs/running-a-spore.md`.
 
 ### Binaries
 
