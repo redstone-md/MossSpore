@@ -2,15 +2,18 @@ package spore
 
 import "path/filepath"
 
-// RelayMeshID is the shared relay mesh every default spore joins. Must match
-// mosh's RELAY_MESH_ID (private_dm_runtime/relay.rs).
+// RelayMeshID is retained for backward compatibility with old config files.
+// Deprecated: relay-mesh mode no longer exists — every spore joins the one
+// shared substrate and relays for every room regardless of mesh id.
 const RelayMeshID = "moss-relay/1"
 
 // Config defines the configuration for a MossSpore daemon instance.
 type Config struct {
-	// MeshID is the identifier for the mesh network to join.
-	// Required. Must match the mesh ID used by other nodes.
-	MeshID string `json:"mesh_id"`
+	// MeshID is the room this spore joins on the shared substrate. A spore
+	// relays for EVERY room no matter what — the substrate is shared — so a
+	// pure relay leaves this empty (the default). Set it only if you also want
+	// the spore to be a pub/sub member of a specific room.
+	MeshID string `json:"mesh_id,omitempty"`
 
 	// PSK is an optional pre-shared key hex-encoded string (32 bytes).
 	// If set, all handshakes require knowledge of this key.
@@ -51,8 +54,10 @@ type Config struct {
 	// spore keeps a stable peer-id across restarts.
 	IdentityPath string `json:"identity_path,omitempty"`
 
-	// RelayMesh configures shared-relay-mesh mode. Default on.
-	RelayMesh RelayMeshConfig `json:"relay_mesh"`
+	// RelayMesh is accepted but ignored, kept so existing config files still
+	// parse. Deprecated: the shared substrate makes relay-mesh mode obsolete —
+	// a spore already relays for every room.
+	RelayMesh RelayMeshConfig `json:"relay_mesh,omitempty"`
 
 	// Monitor configures the built-in HTTP monitoring endpoint.
 	Monitor MonitorConfig `json:"monitor"`
@@ -138,7 +143,8 @@ type MonitorConfig struct {
 // DefaultConfig returns a sensible configuration for a relay-optimised spore.
 func DefaultConfig() Config {
 	return Config{
-		MeshID: "global",
+		// Empty room: a pure substrate relay that serves every room.
+		MeshID: "",
 		Relay: RelayConfig{
 			Enabled:          true,
 			MaxBandwidthKBPS: 1024,
@@ -168,9 +174,6 @@ func DefaultConfig() Config {
 			Enabled:  false,
 			Interval: "24h",
 		},
-		RelayMesh: RelayMeshConfig{
-			Enabled: true,
-		},
 	}
 }
 
@@ -180,13 +183,10 @@ func defaultIdentityPath() string {
 	return filepath.Join(defaultDataDir(), "identity.key")
 }
 
-// Normalize applies the relay-mesh mode and persistent-identity defaults. Call
-// after loading a config file and BEFORE applying explicit CLI flag overrides,
-// so an explicit --mesh-id still wins.
+// Normalize applies the persistent-identity default. Call after loading a
+// config file and BEFORE applying explicit CLI flag overrides, so an explicit
+// --mesh-id still wins.
 func (c *Config) Normalize() {
-	if c.RelayMesh.Enabled {
-		c.MeshID = RelayMeshID
-	}
 	if c.IdentityPath == "" {
 		c.IdentityPath = defaultIdentityPath()
 	}

@@ -1,12 +1,7 @@
 {
-    "mesh_id": "moss-relay/1",
     "listen_port": 4001,
     "identity_path": "/var/lib/mossspore/identity.key",
     "lan_discovery": true,
-
-    "relay_mesh": {
-        "enabled": true
-    },
 
     "relay": {
         "enabled": true,

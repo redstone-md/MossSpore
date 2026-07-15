@@ -2,22 +2,19 @@ package spore
 
 import "testing"
 
-func TestNormalizeRelayMeshModeForcesMeshID(t *testing.T) {
-	c := DefaultConfig() // RelayMesh.Enabled defaults true
-	c.MeshID = "global"
-	c.Normalize()
-	if c.MeshID != RelayMeshID {
-		t.Fatalf("relay-mesh mode should force mesh_id=%q, got %q", RelayMeshID, c.MeshID)
+func TestDefaultConfigIsRoomlessRelay(t *testing.T) {
+	c := DefaultConfig()
+	if c.MeshID != "" {
+		t.Fatalf("default spore should be a roomless relay (empty mesh_id), got %q", c.MeshID)
 	}
 }
 
-func TestNormalizeSingleMeshOptOut(t *testing.T) {
+func TestNormalizePreservesMeshID(t *testing.T) {
 	c := DefaultConfig()
-	c.RelayMesh.Enabled = false
-	c.MeshID = "my-mesh"
+	c.MeshID = "my-room"
 	c.Normalize()
-	if c.MeshID != "my-mesh" {
-		t.Fatalf("opt-out should keep operator mesh_id, got %q", c.MeshID)
+	if c.MeshID != "my-room" {
+		t.Fatalf("Normalize must preserve an explicit mesh_id, got %q", c.MeshID)
 	}
 }
 

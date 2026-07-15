@@ -89,8 +89,12 @@ func (s *Spore) Start() error {
 	s.node = node
 
 	pubKey := node.PublicKey()
-	log.Printf("[spore] node started — mesh=%s key=%s nat=%s port=%d",
-		s.cfg.MeshID,
+	room := s.cfg.MeshID
+	if room == "" {
+		room = "(relay-only)"
+	}
+	log.Printf("[spore] node started — room=%s key=%s nat=%s port=%d",
+		room,
 		hex.EncodeToString(pubKey[:8]),
 		node.NATType(),
 		node.ListenPort(),

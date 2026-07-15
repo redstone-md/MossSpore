@@ -118,13 +118,9 @@ setup_config() {
 
   cat <<-EOF | sudo tee "${CONFIGDIR}/config.json" >/dev/null
 {
-  "mesh_id": "moss-relay/1",
   "listen_port": 0,
   "identity_path": "${IDENTITYDIR}/identity.key",
   "lan_discovery": true,
-  "relay_mesh": {
-    "enabled": true
-  },
   "relay": {
     "enabled": true,
     "max_bandwidth_kbps": 1024,
@@ -140,7 +136,7 @@ setup_config() {
 EOF
   ok "Config written to ${CONFIGDIR}/config.json"
 
-  info "This spore joins the shared relay mesh (moss-relay/1) by default."
+  info "This spore joins the shared substrate and relays for every room by default."
   warn "It only becomes a viable SuperNode if its peer port is inbound-reachable (public IP or forwarded)."
   info "Check reachability once running: curl localhost:9800/health, look at 'nat_type' —"
   info "  public / cone: reachable, good SuperNode candidate."

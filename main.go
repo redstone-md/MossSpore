@@ -84,9 +84,7 @@ func resolveConfig(configPath, meshID string, listenPort int, verbose bool) spor
 }
 
 func validateConfig(cfg spore.Config) error {
-	if cfg.MeshID == "" {
-		return fmt.Errorf("mesh_id is required — set it in config or via --mesh-id")
-	}
+	// An empty mesh_id is valid: a substrate-only relay that serves every room.
 	if strings.ContainsAny(cfg.MeshID, " \t\n") {
 		return fmt.Errorf("mesh_id must not contain whitespace")
 	}
