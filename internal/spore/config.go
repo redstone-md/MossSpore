@@ -76,6 +76,24 @@ type Config struct {
 	// infrastructure; the contribution is DP-noised and carries no address or
 	// stable identity.
 	Telemetry TelemetryConfig `json:"telemetry"`
+
+	// Axiom ships this spore's errors and periodic node-stats to an Axiom
+	// dataset for fleet-wide observability. Disabled unless a token is set.
+	Axiom AxiomConfig `json:"axiom"`
+}
+
+// AxiomConfig configures error/log shipping to Axiom.
+type AxiomConfig struct {
+	// Token is an ingest-only Axiom API token. Empty disables shipping.
+	Token string `json:"token,omitempty"`
+	// Dataset is the target Axiom dataset (e.g. "moss-events").
+	Dataset string `json:"dataset,omitempty"`
+	// Endpoint is the Axiom ingest base URL. Empty → cloud default; set the
+	// region edge for non-default orgs (e.g. https://eu-central-1.aws.edge.axiom.co).
+	Endpoint string `json:"endpoint,omitempty"`
+	// Service overrides the host identifier attached to events (default
+	// "mossspore").
+	Service string `json:"service,omitempty"`
 }
 
 // TelemetryConfig controls the observability contribution.

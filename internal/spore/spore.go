@@ -253,6 +253,17 @@ func (s *Spore) toMossConfig() moss.Config {
 		}
 	}
 
+	if s.cfg.Axiom.Token != "" && s.cfg.Axiom.Dataset != "" {
+		cfg.AxiomToken = s.cfg.Axiom.Token
+		cfg.AxiomDataset = s.cfg.Axiom.Dataset
+		cfg.AxiomEndpoint = s.cfg.Axiom.Endpoint
+		service := s.cfg.Axiom.Service
+		if service == "" {
+			service = "mossspore"
+		}
+		cfg.AxiomService = service
+	}
+
 	cfg.IdentityPath = s.cfg.IdentityPath
 
 	return cfg
