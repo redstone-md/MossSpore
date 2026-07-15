@@ -71,7 +71,7 @@ jobs:
                       -X github.com/moss/mossspore/internal/version.Commit=${COMMIT} \
                       -X github.com/moss/mossspore/internal/version.Date=${DATE}" \
             -o "mossspore-${{ matrix.name }}${{ matrix.ext }}" \
-            ./cmd/mossspore
+            .
 
       - name: Archive artifact
         uses: actions/upload-artifact@v4

@@ -43,7 +43,7 @@ jobs:
         working-directory: mossspore
         env:
           CGO_ENABLED: "0"
-        run: go build -o /dev/null ./cmd/mossspore
+        run: go build -o /dev/null .
 
   build-matrix:
     name: Build ${{ matrix.name }}
@@ -99,7 +99,7 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: "0"
-        run: go build -o mossspore-${{ matrix.name }}${{ matrix.ext }} ./cmd/mossspore
+        run: go build -o mossspore-${{ matrix.name }}${{ matrix.ext }} .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
