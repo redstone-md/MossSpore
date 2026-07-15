@@ -4,7 +4,7 @@ go 1.25.0
 
 toolchain go1.25.9
 
-require github.com/redstone-md/moss v0.6.4
+require github.com/redstone-md/moss v0.6.5
 
 require (
 	github.com/alecthomas/atomic v0.1.0-alpha2 // indirect
@@ -28,6 +28,7 @@ require (
 	github.com/huin/goupnp v1.3.0 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
 	github.com/klauspost/compress v1.18.1 // indirect
+	github.com/oschwald/maxminddb-golang v1.13.1 // indirect
 	github.com/redstone-md/veil/core v0.1.0 // indirect
 	github.com/refraction-networking/utls v1.8.2 // indirect
 	github.com/rs/dnscache v0.0.0-20211102005908-e0241e321417 // indirect
