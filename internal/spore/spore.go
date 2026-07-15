@@ -242,6 +242,17 @@ func (s *Spore) toMossConfig() moss.Config {
 	ht := s.cfg.Transport.HighThroughput
 	cfg.HighThroughput = &ht
 
+	if s.cfg.Telemetry.Enabled {
+		en := true
+		cfg.TelemetryEnabled = &en
+		if s.cfg.Telemetry.EpochSec > 0 {
+			cfg.TelemetryEpochSec = s.cfg.Telemetry.EpochSec
+		}
+		if s.cfg.Telemetry.KAnon > 0 {
+			cfg.TelemetryKAnon = s.cfg.Telemetry.KAnon
+		}
+	}
+
 	cfg.IdentityPath = s.cfg.IdentityPath
 
 	return cfg

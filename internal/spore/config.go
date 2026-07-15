@@ -70,6 +70,24 @@ type Config struct {
 
 	// AutoUpdate enables automatic binary updates from GitHub releases.
 	AutoUpdate AutoUpdateConfig `json:"auto_update"`
+
+	// Telemetry opts this spore into the privacy-preserving network
+	// observability layer that gateways aggregate. On by default for relay
+	// infrastructure; the contribution is DP-noised and carries no address or
+	// stable identity.
+	Telemetry TelemetryConfig `json:"telemetry"`
+}
+
+// TelemetryConfig controls the observability contribution.
+type TelemetryConfig struct {
+	// Enabled contributes DP-noised per-epoch aggregate metrics to the network.
+	Enabled bool `json:"enabled"`
+
+	// EpochSec is the telemetry epoch length. Default 300 (moss default).
+	EpochSec int `json:"epoch_sec,omitempty"`
+
+	// KAnon suppresses detailed metrics below this many contributors.
+	KAnon int `json:"k_anon,omitempty"`
 }
 
 // AutoUpdateConfig controls the automatic update behaviour.
@@ -173,6 +191,9 @@ func DefaultConfig() Config {
 		AutoUpdate: AutoUpdateConfig{
 			Enabled:  false,
 			Interval: "24h",
+		},
+		Telemetry: TelemetryConfig{
+			Enabled: true,
 		},
 	}
 }
