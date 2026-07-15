@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"moss"
+	"github.com/redstone-md/moss"
 
 	"github.com/moss/mossspore/internal/update"
 	"github.com/moss/mossspore/internal/version"

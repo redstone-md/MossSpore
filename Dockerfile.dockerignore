@@ -1,23 +1,16 @@
-# Applies to `docker build -f MossSpore/Dockerfile ..` — BuildKit matches
-# ignore files by Dockerfile path (MossSpore/Dockerfile.dockerignore), so
-# this is honoured even though the build context is the PARENT directory,
-# not MossSpore/ itself. It trims that parent-dir context down to just
-# MossSpore/ and moss/ (the go.mod replace-directive sibling); everything
-# else up there — other repos, editor/AI-tool workspace state, build
-# artifacts — has nothing to do with this Go build.
+# The build context is THIS repo (moss is fetched from github, not copied).
+# Keep the Docker context small and free of local/editor state.
 
-mosh
-landing
-src
+.git
+.aislop
+.continuum
+.playwright-mcp
+.serena
+.superpowers
+.gocache
+.gotmp
+build
 
-**/.git
-**/.aislop
-**/.continuum
-**/.playwright-mcp
-**/.serena
-**/.superpowers
-**/.gocache
-**/.gotmp
 **/node_modules
 **/*.dll
 **/*.so
@@ -27,10 +20,3 @@ src
 **/*.exp
 **/*.def
 **/*.key
-
-MossSpore/build
-moss/site
-moss/deploy
-moss/docs
-moss/examples/rust_example/target
-moss/.state

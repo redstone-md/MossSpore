@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"time"
 
-	"moss"
+	"github.com/redstone-md/moss"
 
 	"github.com/moss/mossspore/internal/version"
 )

@@ -1,35 +1,28 @@
 # MossSpore container image.
 #
-# BUILD CONTEXT MUST BE THE PARENT DIRECTORY, not MossSpore/ itself.
-# MossSpore/go.mod has `replace moss => ../moss`: the moss module lives one
-# level up, as a sibling of this repo. `docker build MossSpore/` only sees
-# inside MossSpore/ and cannot resolve ../moss, so the build fails. Build
-# from the directory that contains both MossSpore/ and moss/:
+# Self-contained: the `moss` dependency is fetched from
+# github.com/redstone-md/moss (pinned in go.mod / go.sum), so the build context
+# is just THIS repo — no sibling checkout needed:
 #
-#   docker build -f MossSpore/Dockerfile -t mossspore ..
+#   docker build -t mossspore .
 #
-# MossSpore/Dockerfile.dockerignore (matched by BuildKit against this exact
-# Dockerfile path) trims that parent-dir context down to just MossSpore/ and
-# moss/ — everything else up there (other repos, editor/AI-tool state) is
-# unrelated to this build.
-
 # ---- builder ----
 FROM golang:1.25 AS builder
 WORKDIR /src
-COPY MossSpore/ ./MossSpore/
-COPY moss/ ./moss/
-WORKDIR /src/MossSpore
+# Prime the module cache first so it is reused across source-only rebuilds.
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /mossspore ./cmd/mossspore
 
 # ---- runtime ----
 FROM gcr.io/distroless/static-debian12
 COPY --from=builder /mossspore /mossspore
-COPY MossSpore/docker/config.json /etc/mossspore/config.json
+COPY docker/config.json /etc/mossspore/config.json
 
 # Peer port: moss binds ONE port number for both the TCP transport and the
-# UDP transport (hole-punch / uTP) — see moss/internal/transport/listener.go
-# (ListenPair). 4001 is this image's default, baked into docker/config.json;
-# override listen_port by mounting a different config over
+# UDP transport (hole-punch / uTP). 4001 is this image's default, baked into
+# docker/config.json; override listen_port by mounting a different config over
 # /etc/mossspore/config.json if you need another port.
 EXPOSE 4001/tcp
 EXPOSE 4001/udp

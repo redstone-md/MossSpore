@@ -4,7 +4,7 @@ go 1.25.0
 
 toolchain go1.25.9
 
-require moss v0.0.0
+require github.com/redstone-md/moss v0.6.0
 
 require (
 	github.com/alecthomas/atomic v0.1.0-alpha2 // indirect
@@ -38,5 +38,3 @@ require (
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 )
-
-replace moss => ../moss
