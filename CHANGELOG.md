@@ -5,6 +5,21 @@ All notable changes to MossSpore are documented here. Format loosely follows
 semantic versioning. Most releases track a moss runtime bump; the moss changelog
 has the transport/protocol detail.
 
+## [0.7.0] - 2026-07-16
+
+### Changed
+- **Bundled moss → v0.7.0: a spore is now the overlay's core.** A publicly
+  reachable spore holds Kademlia buckets and answers the lookups that let two
+  peers on a sparse channel find each other at all — the gap that made game
+  lobbies invisible once the shared substrate diluted every topic among
+  hundreds of unrelated peers. Leaves cannot serve this: a lookup can only be
+  delivered to a node that can be dialed, so **the relay fleet has to be
+  upgraded for clients to benefit**. Records are keyed by the opaque room topic,
+  so a spore holding one still cannot tell which room or game it belongs to.
+- moss v0.7.0 also ships per-attempt connectivity telemetry (`nat_attempt`,
+  `topic_rendezvous`, `session_end`) — no addresses — and fixes the FFI dropping
+  the Axiom config, which is why no desktop client had ever reported.
+
 ## [0.6.16] - 2026-07-16
 
 ### Fixed
