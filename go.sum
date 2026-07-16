@@ -209,6 +209,8 @@ github.com/redstone-md/moss v0.7.3 h1:vz06h0f0w9NrFbu2e/WGeg6h03HgNXEG1i5pr91e81
 github.com/redstone-md/moss v0.7.3/go.mod h1:rBLLoDJ1xSDyaUqqZg+w3bLzVW55Lzt8VarcFX8oj40=
 github.com/redstone-md/moss v0.7.4 h1:UwUHxnrst9DQQkpOnP8RAwl682zOI7UZwE/Bp15Alao=
 github.com/redstone-md/moss v0.7.4/go.mod h1:rBLLoDJ1xSDyaUqqZg+w3bLzVW55Lzt8VarcFX8oj40=
+github.com/redstone-md/moss v0.7.5 h1:sfAoNExxPgJJiuhpUynJT6NMEbDF0ND7dSRwVBgiz/k=
+github.com/redstone-md/moss v0.7.5/go.mod h1:rBLLoDJ1xSDyaUqqZg+w3bLzVW55Lzt8VarcFX8oj40=
 github.com/redstone-md/veil/core v0.1.0 h1:50QyxBE5fAJIMRdh3bWPeJe02vbpTt9gKzAQy1VI8EU=
 github.com/redstone-md/veil/core v0.1.0/go.mod h1:AFpH3CIHWn6zedCk9h+l7gVOdeEe9Ogd/dW+8UHGo70=
 github.com/refraction-networking/utls v1.8.2 h1:j4Q1gJj0xngdeH+Ox/qND11aEfhpgoEvV+S9iJ2IdQo=
