@@ -5,6 +5,16 @@ All notable changes to MossSpore are documented here. Format loosely follows
 semantic versioning. Most releases track a moss runtime bump; the moss changelog
 has the transport/protocol detail.
 
+## [0.6.15] - 2026-07-16
+
+### Changed
+- Bundled moss → v0.6.23 (**symmetric-NAT flap, real fix**: bootstrap now dials
+  a public supernode TCP-first instead of racing a UDP session against it, so a
+  node behind symmetric NAT — e.g. a Flux container — forms one stable TCP link
+  per supernode instead of being pruned every ~38s. v0.6.14's dialer-side
+  preference alone was insufficient because the supernode latched onto the
+  raced UDP session on its own).
+
 ## [0.6.14] - 2026-07-16
 
 ### Added
