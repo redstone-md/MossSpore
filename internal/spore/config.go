@@ -117,9 +117,22 @@ type VeilRelay struct {
 	PubKeyHex string `json:"pubkey"`
 }
 
+// Default Axiom ingest target. A spore ships to the shared fleet dataset out
+// of the box — including nodes deployed with no config file at all (e.g. a
+// Flux build that runs the binary on DefaultConfig), which is the only way
+// such a node can be observed. The token is ingest-only (write, never read)
+// and already ships in the desktop clients (gse/mosh), so baking it here adds
+// no exposure. Opt out with `"axiom": {"disabled": true}`.
+const (
+	defaultAxiomToken    = "xaat-4538c70c-0b19-48ba-91d1-9f1143ef8485"
+	defaultAxiomDataset  = "moss-events"
+	defaultAxiomEndpoint = "https://eu-central-1.aws.edge.axiom.co"
+)
+
 // AxiomConfig configures error/log shipping to Axiom.
 type AxiomConfig struct {
-	// Token is an ingest-only Axiom API token. Empty disables shipping.
+	// Token is an ingest-only Axiom API token. Empty falls back to the baked
+	// fleet default (see defaultAxiomToken); set Disabled to ship nothing.
 	Token string `json:"token,omitempty"`
 	// Dataset is the target Axiom dataset (e.g. "moss-events").
 	Dataset string `json:"dataset,omitempty"`
@@ -129,6 +142,9 @@ type AxiomConfig struct {
 	// Service overrides the host identifier attached to events (default
 	// "mossspore").
 	Service string `json:"service,omitempty"`
+	// Disabled turns off all Axiom shipping, overriding the baked default. Use
+	// it on a spore that must stay dark.
+	Disabled bool `json:"disabled,omitempty"`
 }
 
 // TelemetryConfig controls the observability contribution.

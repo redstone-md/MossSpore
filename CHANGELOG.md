@@ -5,6 +5,18 @@ All notable changes to MossSpore are documented here. Format loosely follows
 semantic versioning. Most releases track a moss runtime bump; the moss changelog
 has the transport/protocol detail.
 
+## [0.6.13] - 2026-07-16
+
+### Changed
+- **Axiom shipping is now on by default**, with a baked ingest-only fleet
+  token. A spore reports to the shared `moss-events` dataset even when it runs
+  on `DefaultConfig` with no config file — the case for a Flux build that just
+  executes the binary, which previously shipped nothing and was invisible.
+  An explicit `[axiom]` block still overrides the token/dataset/endpoint/
+  service; opt out entirely with `"axiom": {"disabled": true}`. The token is
+  write-only and already present in the desktop clients, so this adds no
+  exposure.
+
 ## [0.6.12] - 2026-07-16
 
 ### Added

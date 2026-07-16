@@ -253,15 +253,32 @@ func (s *Spore) toMossConfig() moss.Config {
 		}
 	}
 
-	if s.cfg.Axiom.Token != "" && s.cfg.Axiom.Dataset != "" {
-		cfg.AxiomToken = s.cfg.Axiom.Token
-		cfg.AxiomDataset = s.cfg.Axiom.Dataset
-		cfg.AxiomEndpoint = s.cfg.Axiom.Endpoint
-		service := s.cfg.Axiom.Service
-		if service == "" {
-			service = "mossspore"
+	// Ship to Axiom unless explicitly disabled. An empty token falls back to
+	// the baked fleet default so a config-less deployment (e.g. Flux running
+	// the binary on DefaultConfig) is still observable.
+	if !s.cfg.Axiom.Disabled {
+		token := s.cfg.Axiom.Token
+		dataset := s.cfg.Axiom.Dataset
+		endpoint := s.cfg.Axiom.Endpoint
+		if token == "" {
+			token = defaultAxiomToken
+			if dataset == "" {
+				dataset = defaultAxiomDataset
+			}
+			if endpoint == "" {
+				endpoint = defaultAxiomEndpoint
+			}
 		}
-		cfg.AxiomService = service
+		if token != "" && dataset != "" {
+			cfg.AxiomToken = token
+			cfg.AxiomDataset = dataset
+			cfg.AxiomEndpoint = endpoint
+			service := s.cfg.Axiom.Service
+			if service == "" {
+				service = "mossspore"
+			}
+			cfg.AxiomService = service
+		}
 	}
 
 	if s.cfg.Veil.Enabled {
