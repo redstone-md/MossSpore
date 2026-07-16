@@ -7,12 +7,40 @@ import (
 	"net"
 	"net/http"
 	"runtime"
+	"runtime/debug"
 	"time"
 
 	"github.com/redstone-md/moss"
 
 	"github.com/moss/mossspore/internal/version"
 )
+
+// buildInfo caches the module + VCS build metadata so the dashboard can show
+// exactly which moss version and commit are running — the release ldflags are
+// not set on a from-source build (e.g. Flux), so version.Version is unreliable,
+// but the build info embedded by the Go toolchain always is.
+var mossModuleVersion, buildRevision = func() (string, string) {
+	bi, ok := debug.ReadBuildInfo()
+	if !ok {
+		return "", ""
+	}
+	var mossVer, rev string
+	for _, d := range bi.Deps {
+		if d.Path == "github.com/redstone-md/moss" {
+			mossVer = d.Version
+			break
+		}
+	}
+	for _, s := range bi.Settings {
+		if s.Key == "vcs.revision" {
+			rev = s.Value
+			if len(rev) > 12 {
+				rev = rev[:12]
+			}
+		}
+	}
+	return mossVer, rev
+}()
 
 // dashboardHTML is the self-contained status page served at "/". It polls
 // /api/summary client-side; nothing sensitive is inlined.
@@ -112,6 +140,8 @@ func (m *Monitor) handleSummary(w http.ResponseWriter, r *http.Request) {
 		"uptime_sec":               int(time.Since(m.startedAt).Seconds()),
 		"version":                  version.Version,
 		"commit":                   version.Commit,
+		"moss_version":             mossModuleVersion,
+		"build_rev":                buildRevision,
 	}
 	writeJSON(w, http.StatusOK, out)
 }

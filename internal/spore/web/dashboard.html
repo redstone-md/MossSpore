@@ -116,6 +116,7 @@
 
   <footer>
     <span>moss mesh</span><span>·</span>
+    <span id="build" class="id"></span><span>·</span>
     <a href="/info">/info</a><a href="/health">/health</a><a href="/version">/version</a>
     <span id="err" class="err"></span>
   </footer>
@@ -153,7 +154,8 @@
     $('relayRoutes').textContent=num(d.relay_route_count);
     $('relayCap').textContent=num(d.relay_capable_peer_count);
     $('uptime').textContent=fmtUptime(d.uptime_sec);
-    $('version').textContent=d.version||'dev';
+    $('version').textContent=d.moss_version||d.version||'dev';
+    $('build').textContent=(d.moss_version?('moss '+d.moss_version):'')+(d.build_rev?(' · '+d.build_rev):'');
     $('channels').textContent=num(d.channel_count);
     var pc=d.peer_count||0;
     if(pc>0) setStatus('ok','healthy · '+pc+' peers');

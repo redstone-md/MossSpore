@@ -5,6 +5,23 @@ All notable changes to MossSpore are documented here. Format loosely follows
 semantic versioning. Most releases track a moss runtime bump; the moss changelog
 has the transport/protocol detail.
 
+## [0.6.16] - 2026-07-16
+
+### Fixed
+- **Bundled moss → v0.6.24, which reverts a NAT hole-punch regression.** moss
+  v0.6.22/v0.6.23 — shipped in MossSpore **v0.6.14 and v0.6.15** — dropped the
+  UDP session a node keeps with its bootstrap peers, breaking direct P2P
+  between NAT'd peers (every moss node answers an `observe` request over that
+  session — a built-in STUN — and those observations drive NAT classification
+  and hole-punch port prediction). **Anyone on v0.6.14/v0.6.15 should upgrade.**
+
+### Added
+- `/api/summary` and the dashboard now report the bundled **moss version** and
+  **build revision** (from the Go build info, which is reliable even on a
+  from-source build with no release ldflags). Makes it possible to confirm
+  exactly which moss a deployment is running — e.g. whether a Flux build
+  actually picked up the latest commit.
+
 ## [0.6.15] - 2026-07-16
 
 ### Changed
