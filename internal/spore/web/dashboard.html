@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>moss node</title>
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#131a22; --panel2:#0f151c; --line:#1f2a36;
+    --txt:#e6edf3; --muted:#8b98a5; --accent:#3fb950; --accent2:#58a6ff;
+    --warn:#d29922; --bad:#f85149; --radius:14px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f6f8fa; --panel:#fff; --panel2:#f0f3f6; --line:#d8dee4;
+      --txt:#1f2328; --muted:#59636e; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font:15px/1.5 ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:920px;margin:0 auto;padding:28px 18px 60px}
+  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+  .logo{width:38px;height:38px;border-radius:10px;flex:0 0 auto;
+    background:radial-gradient(circle at 30% 30%,var(--accent),#0d5c2a);
+    box-shadow:0 0 0 1px var(--line),0 6px 20px rgba(63,185,80,.25)}
+  h1{font-size:20px;margin:0;letter-spacing:.2px}
+  .sub{color:var(--muted);font-size:13px;margin-top:2px}
+  .id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;
+    color:var(--muted)}
+  .badge{margin-left:auto;display:inline-flex;align-items:center;gap:8px;
+    padding:7px 13px;border-radius:999px;font-size:13px;font-weight:600;
+    border:1px solid var(--line);background:var(--panel)}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+  .dot.ok{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .dot.warn{background:var(--warn)}
+  .dot.bad{background:var(--bad)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:14px;margin-top:24px}
+  .card{background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);padding:16px 18px;position:relative;overflow:hidden}
+  .card .k{color:var(--muted);font-size:12px;text-transform:uppercase;
+    letter-spacing:.6px}
+  .card .v{font-size:28px;font-weight:700;margin-top:6px;
+    font-variant-numeric:tabular-nums}
+  .card .v small{font-size:14px;font-weight:500;color:var(--muted)}
+  .card.wide{grid-column:1/-1}
+  .split{display:flex;gap:22px;flex-wrap:wrap}
+  .split .k{margin-bottom:2px}
+  .split .v{font-size:20px}
+  .chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;
+    font-weight:600;border:1px solid var(--line);background:var(--panel2)}
+  .chip.good{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+  .chip.mut{color:var(--muted)}
+  footer{margin-top:30px;color:var(--muted);font-size:12px;display:flex;
+    gap:10px;align-items:center;flex-wrap:wrap}
+  .bar{height:4px;border-radius:2px;background:var(--panel2);overflow:hidden;margin-top:14px}
+  .bar>i{display:block;height:100%;width:0;background:var(--accent2);
+    transition:width .4s ease}
+  a{color:var(--accent2);text-decoration:none}
+  .err{color:var(--bad)}
+  .pulse{animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"></div>
+    <div>
+      <h1>moss node</h1>
+      <div class="sub"><span class="id" id="nodeId">…</span> · <span id="room">substrate</span></div>
+    </div>
+    <div class="badge"><span class="dot pulse" id="statusDot"></span><span id="statusText">connecting…</span></div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <div class="k">Peers</div>
+      <div class="v"><span id="peers">–</span></div>
+      <div class="sub"><span id="direct">0</span> direct · <span id="relayed">0</span> relayed</div>
+    </div>
+    <div class="card">
+      <div class="k">Known peers</div>
+      <div class="v" id="known">–</div>
+      <div class="sub">seen on the mesh</div>
+    </div>
+    <div class="card">
+      <div class="k">NAT type</div>
+      <div class="v" style="font-size:20px;margin-top:10px"><span class="chip" id="nat">unknown</span></div>
+    </div>
+    <div class="card">
+      <div class="k">Supernode</div>
+      <div class="v" style="font-size:20px;margin-top:10px"><span class="chip" id="super">no</span></div>
+    </div>
+    <div class="card">
+      <div class="k">Relay sessions</div>
+      <div class="v" id="relaySessions">–</div>
+      <div class="sub"><span id="relayRoutes">0</span> routes · <span id="relayCap">0</span> capable</div>
+    </div>
+    <div class="card">
+      <div class="k">Uptime</div>
+      <div class="v" id="uptime" style="font-size:22px;margin-top:10px">–</div>
+    </div>
+    <div class="card wide">
+      <div class="split">
+        <div><div class="k">Version</div><div class="v" id="version">–</div></div>
+        <div><div class="k">Channels</div><div class="v" id="channels">0</div></div>
+        <div style="flex:1;min-width:180px">
+          <div class="k">Next refresh</div>
+          <div class="bar"><i id="refreshBar"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>moss mesh</span><span>·</span>
+    <a href="/info">/info</a><a href="/health">/health</a><a href="/version">/version</a>
+    <span id="err" class="err"></span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var REFRESH=4000, t0=Date.now();
+  var $=function(id){return document.getElementById(id)};
+  function fmtUptime(s){
+    s=Math.max(0,Math.floor(s));
+    var d=Math.floor(s/86400); s-=d*86400;
+    var h=Math.floor(s/3600); s-=h*3600;
+    var m=Math.floor(s/60); s-=m*60;
+    if(d>0) return d+'d '+h+'h';
+    if(h>0) return h+'h '+m+'m';
+    if(m>0) return m+'m '+s+'s';
+    return s+'s';
+  }
+  function setStatus(cls,text){ $('statusDot').className='dot '+cls; $('statusText').textContent=text; }
+  function num(n){ return (n==null?'–':String(n)); }
+  function chip(el,ok,txt){ el.textContent=txt; el.className='chip '+(ok?'good':'mut'); }
+
+  function render(d){
+    $('err').textContent='';
+    $('nodeId').textContent=d.node_id||'unknown';
+    $('room').textContent=(d.mesh_id&&d.mesh_id.length)?('room '+d.mesh_id):'substrate (all rooms)';
+    $('peers').textContent=num(d.peer_count);
+    $('direct').textContent=num(d.direct_peer_count);
+    $('relayed').textContent=num(d.relayed_peer_count);
+    $('known').textContent=num(d.known_peer_count);
+    chip($('nat'), d.nat_type&&d.nat_type!=='unknown'&&d.nat_type!=='symmetric_nat'&&d.nat_type!=='cgnat', d.nat_type||'unknown');
+    chip($('super'), !!d.supernode_ready, d.supernode_ready?'ready':'no');
+    $('relaySessions').textContent=num(d.relay_session_count);
+    $('relayRoutes').textContent=num(d.relay_route_count);
+    $('relayCap').textContent=num(d.relay_capable_peer_count);
+    $('uptime').textContent=fmtUptime(d.uptime_sec);
+    $('version').textContent=d.version||'dev';
+    $('channels').textContent=num(d.channel_count);
+    var pc=d.peer_count||0;
+    if(pc>0) setStatus('ok','healthy · '+pc+' peers');
+    else setStatus('warn','isolated · 0 peers');
+  }
+
+  function tick(){
+    fetch('/api/summary',{cache:'no-store'}).then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
+    }).then(render).catch(function(e){
+      setStatus('bad','unreachable'); $('err').textContent=String(e.message||e);
+    });
+  }
+
+  // refresh progress bar
+  function animate(){
+    var el=$('refreshBar');
+    (function step(){
+      var p=((Date.now()-t0)%REFRESH)/REFRESH;
+      el.style.width=(p*100).toFixed(1)+'%';
+      requestAnimationFrame(step);
+    })();
+  }
+
+  tick(); animate();
+  setInterval(function(){ t0=Date.now(); tick(); }, REFRESH);
+})();
+</script>
+</body>
+</html>

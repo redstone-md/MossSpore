@@ -5,6 +5,24 @@ All notable changes to MossSpore are documented here. Format loosely follows
 semantic versioning. Most releases track a moss runtime bump; the moss changelog
 has the transport/protocol detail.
 
+## [0.6.14] - 2026-07-16
+
+### Added
+- **Status dashboard at `/`.** The monitor port now serves a self-contained
+  (no external assets) status page that polls a new sanitized `/api/summary`
+  endpoint every few seconds — peer/relay counts, NAT type, supernode state,
+  uptime, version. When the port is mapped to a public URL (e.g. a Flux
+  deployment), the summary deliberately omits peer/known-peer addresses,
+  `peer_details`, `advertised_addr` and the full public key, so the mesh is
+  not deanonymized; `node_id` is a short prefix. `/info` is unchanged for
+  local tooling.
+
+### Changed
+- Bundled moss → v0.6.22 (**symmetric-NAT flap fix**: a node behind symmetric
+  NAT — e.g. a container on Flux — no longer drops its supernodes every ~38s;
+  duplicate-session dedup now keeps the stable TCP link instead of letting a
+  dead-return-path UDP session replace it).
+
 ## [0.6.13] - 2026-07-16
 
 ### Changed
