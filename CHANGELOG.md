@@ -5,6 +5,18 @@ All notable changes to MossSpore are documented here. Format loosely follows
 semantic versioning. Most releases track a moss runtime bump; the moss changelog
 has the transport/protocol detail.
 
+## [0.7.1] - 2026-07-16
+
+### Changed
+- Bundled moss → v0.7.1: **a node can finally classify its own NAT.** Fleet
+  telemetry showed every event carrying `observations=1` and ~89% of connect
+  attempts failing at ~10s each — the same bug. A node never had the two vantage
+  points symmetric NAT requires (the gossip binding reply echoed back the
+  asker's own port; STUN stopped at the first server), so `nat_type` stayed
+  `unknown` forever and the relay-preference gate — which needs both ends known
+  symmetric — never fired. Relay selection also now asks the overlay where a
+  peer is attached instead of guessing which neighbour might reach it.
+
 ## [0.7.0] - 2026-07-16
 
 ### Changed
