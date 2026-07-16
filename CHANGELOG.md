@@ -5,6 +5,20 @@ All notable changes to MossSpore are documented here. Format loosely follows
 semantic versioning. Most releases track a moss runtime bump; the moss changelog
 has the transport/protocol detail.
 
+## [0.6.12] - 2026-07-16
+
+### Added
+- **Veil DPI-mask bearer configurable on a spore** (`[veil]` block). A public
+  relay sets `role="listener"` with a `cover_sni` to front the mesh as
+  ordinary HTTPS; a spore behind DPI lists veil-fronted relays under
+  `relays` (`{addr, cover_sni, pubkey}`) to bootstrap through the masked
+  tunnel when its plain UDP/TCP paths are throttled (e.g. RU TSPU). Off by
+  default.
+
+### Changed
+- Bundled moss → v0.6.21 (Veil dialer integration: the mesh now bootstraps
+  through the DPI-mask bearer, not just listens on it).
+
 ## [0.6.11] - 2026-07-15
 
 ### Added

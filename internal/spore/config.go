@@ -80,6 +80,41 @@ type Config struct {
 	// Axiom ships this spore's errors and periodic node-stats to an Axiom
 	// dataset for fleet-wide observability. Disabled unless a token is set.
 	Axiom AxiomConfig `json:"axiom"`
+
+	// Veil configures the DPI-resistant "Reality" bearer. A public relay
+	// sets role="listener" to front the mesh as ordinary HTTPS so a client
+	// behind DPI (e.g. RU TSPU) can join through it. Disabled by default.
+	Veil VeilConfig `json:"veil"`
+}
+
+// VeilConfig configures the Veil "Reality" DPI-mask bearer on a spore.
+type VeilConfig struct {
+	// Enabled turns the bearer on. Off by default.
+	Enabled bool `json:"enabled"`
+	// Role is "listener" for a relay that fronts the mesh, or "dialer"
+	// (default) for a node that only bootstraps through veil relays.
+	Role string `json:"role,omitempty"`
+	// ListenAddr is the listener bind (host:port), e.g. ":8443".
+	ListenAddr string `json:"listen_addr,omitempty"`
+	// CoverSNI is the domain the masked TLS impersonates. Must match on both
+	// legs and SHOULD be a real site the listener can reach, so spliced
+	// probes see a genuine certificate (e.g. "www.wikipedia.org").
+	CoverSNI string `json:"cover_sni,omitempty"`
+	// TargetAddr is the real origin unauthenticated probes are spliced to
+	// (default CoverSNI:443).
+	TargetAddr string `json:"target_addr,omitempty"`
+	// Relays lists veil-fronted relays a dialer bootstraps through.
+	Relays []VeilRelay `json:"relays,omitempty"`
+}
+
+// VeilRelay is one veil-fronted relay a spore dials to survive DPI.
+type VeilRelay struct {
+	// Addr is the relay's veil listener, host:port.
+	Addr string `json:"addr"`
+	// CoverSNI must match the relay's cover domain.
+	CoverSNI string `json:"cover_sni"`
+	// PubKeyHex is the relay's 32-byte static Noise public key (hex).
+	PubKeyHex string `json:"pubkey"`
 }
 
 // AxiomConfig configures error/log shipping to Axiom.

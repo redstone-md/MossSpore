@@ -264,6 +264,24 @@ func (s *Spore) toMossConfig() moss.Config {
 		cfg.AxiomService = service
 	}
 
+	if s.cfg.Veil.Enabled {
+		v := &moss.VeilConfig{
+			Enabled:    true,
+			Role:       s.cfg.Veil.Role,
+			ListenAddr: s.cfg.Veil.ListenAddr,
+			CoverSNI:   s.cfg.Veil.CoverSNI,
+			TargetAddr: s.cfg.Veil.TargetAddr,
+		}
+		for _, r := range s.cfg.Veil.Relays {
+			v.Relays = append(v.Relays, moss.VeilRelay{
+				Addr:      r.Addr,
+				CoverSNI:  r.CoverSNI,
+				PubKeyHex: r.PubKeyHex,
+			})
+		}
+		cfg.Veil = v
+	}
+
 	cfg.IdentityPath = s.cfg.IdentityPath
 
 	return cfg
