@@ -8,7 +8,7 @@ has the transport/protocol detail.
 ## [0.8.1] - 2026-07-17
 
 ### Changed
-- **Bundled moss → v0.8.11: relays stopped drowning each other.** A spore with
+- **Bundled moss → v0.8.14: relays stopped drowning each other.** A spore with
   seven peers was taking 21,808 supernode announcements in two minutes — against
   29 pings — and silently discarding 142,125 packets a minute at 2% capacity.
   Disagreeing nodes forwarded their own unverifiable view of a peer back and
@@ -20,7 +20,7 @@ has the transport/protocol detail.
   and stop redialling a peer that connects and then goes silent (v0.8.10). Links
   between spores on this build show zero six-miss deaths and a median session
   life of 632s, against 37s before.
-- moss v0.8.3–v0.8.5 are retracted and must not be bundled: they carry a session
+- moss v0.8.3-v0.8.5 are retracted and must not be bundled: they carry a session
   goodbye that tore down live links. See the moss changelog.
 
 ### Added
