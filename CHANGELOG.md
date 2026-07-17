@@ -5,6 +5,54 @@ All notable changes to MossSpore are documented here. Format loosely follows
 semantic versioning. Most releases track a moss runtime bump; the moss changelog
 has the transport/protocol detail.
 
+## [0.8.1] - 2026-07-17
+
+### Changed
+- **Bundled moss → v0.8.11: relays stopped drowning each other.** A spore with
+  seven peers was taking 21,808 supernode announcements in two minutes — against
+  29 pings — and silently discarding 142,125 packets a minute at 2% capacity.
+  Disagreeing nodes forwarded their own unverifiable view of a peer back and
+  forth forever, each correction going to every peer they had; the flood stalled
+  the synchronous read loop, the stream buffer filled, and everything behind it
+  was dropped without a trace. The pings among them are why sessions died at six
+  misses with the connection healthy. Fixed in three layers: do not re-tell what
+  we cannot vouch for (v0.8.8), survive a peer that floods us anyway (v0.8.9),
+  and stop redialling a peer that connects and then goes silent (v0.8.10). Links
+  between spores on this build show zero six-miss deaths and a median session
+  life of 632s, against 37s before.
+- moss v0.8.3–v0.8.5 are retracted and must not be bundled: they carry a session
+  goodbye that tore down live links. See the moss changelog.
+
+### Added
+- Fleet telemetry a spore can be judged by: `stream_drops` (packets thrown away
+  for want of buffer — an overflow hook had sat uninstalled in the tree, so these
+  had never once been counted), `in_<envelope_type>` (what is arriving, which is
+  how the flood got a name), `peer_capacity_pct` / `relay_capacity_pct` with
+  their denominators (8 peers is half-idle at MaxPeers=16 and wedged at
+  MaxPeers=8 — a spore at 90% warns), and `peer` on `session_end` (so both halves
+  of one link can be joined; from inside one node "zero packets arrived" cannot
+  be told from "they never sent").
+
+## [0.7.2] - [0.8.0] - 2026-07-16 — 2026-07-17
+
+These shipped without changelog entries; recorded here after the fact. Each is a
+moss runtime bump, and the moss changelog carries the detail.
+
+### Changed
+- moss v0.7.2–v0.7.6: NAT classification stopped stealing a public node's road to
+  reachable; the relay became a fallback rather than a terminus; the overlay
+  learned to bootstrap itself, to name the path that opens every session, and to
+  stop draining its own routing table.
+- moss v0.7.7–v0.7.9: the overlay left the hot path — a Kademlia lookup per peer
+  per tick was adding ~12s to every connect, which players felt as the stall; the
+  node stopped redialling peers it already held (a storm of ~1.7 sessions/second,
+  95% of them duplicates closed on arrival); and sessions began counting what
+  actually arrives, since a UDP write succeeds locally whether or not anyone
+  receives it.
+- moss v0.8.0: duplicate sessions are decided by transport, the one fact both ends
+  agree on. A bootstrap race leaves each side holding two sessions in the same
+  direction, and diverging choices left the loser's half a ghost.
+
 ## [0.7.1] - 2026-07-16
 
 ### Changed
