@@ -87,6 +87,11 @@ jobs:
     steps:
       - name: Checkout MossSpore
         uses: actions/checkout@v4
+        with:
+          # release-notes.sh reads the changelog and the commit range between
+          # this tag and the previous one; a shallow clone has neither history
+          # nor tags.
+          fetch-depth: 0
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -103,11 +108,18 @@ jobs:
           done > checksums.txt
           cat checksums.txt
 
+      - name: Build release notes
+        run: |
+          bash scripts/release-notes.sh "${{ github.ref_name }}" > release-body.md
+          echo >> release-body.md
+          cat .github/release-footer.md >> release-body.md
+          cat release-body.md
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           name: Release ${{ github.ref_name }}
-          body_path: .github/release-template.md
+          body_path: release-body.md
           fail_on_unmatched_files: true
           files: |
             artifacts/*/mossspore-*
