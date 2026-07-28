@@ -203,8 +203,8 @@ github.com/prometheus/procfs v0.0.2/go.mod h1:TjEm7ze935MbeOT/UhFTIMYKhuLP4wbCsT
 github.com/prometheus/procfs v0.0.8/go.mod h1:7Qr8sr6344vo1JqZ6HhLceV9o3AJ1Ff+GxbHq6oeK9A=
 github.com/prometheus/procfs v0.0.11/go.mod h1:lV6e/gmhEcM9IjHGsFOCxxuZ+z1YqCvr4OA4YeYWdaU=
 github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
-github.com/redstone-md/moss v0.8.16 h1:HZ6PXxz5i546wwVmCPVw5kHY7H2rVXYD8d+++E+/YGQ=
-github.com/redstone-md/moss v0.8.16/go.mod h1:woU5si3fPjGU0wNclr8eXT0FJ+8r/RqJuYLBhACjuC4=
+github.com/redstone-md/moss v0.8.18 h1:qcqNBMbLlQXvESf0urvl3OkRImfIzG8LPpSOxp0rlA0=
+github.com/redstone-md/moss v0.8.18/go.mod h1:woU5si3fPjGU0wNclr8eXT0FJ+8r/RqJuYLBhACjuC4=
 github.com/redstone-md/veil/core v0.1.0 h1:50QyxBE5fAJIMRdh3bWPeJe02vbpTt9gKzAQy1VI8EU=
 github.com/redstone-md/veil/core v0.1.0/go.mod h1:AFpH3CIHWn6zedCk9h+l7gVOdeEe9Ogd/dW+8UHGo70=
 github.com/refraction-networking/utls v1.8.2 h1:j4Q1gJj0xngdeH+Ox/qND11aEfhpgoEvV+S9iJ2IdQo=

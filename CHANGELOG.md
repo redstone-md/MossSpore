@@ -5,6 +5,26 @@ All notable changes to MossSpore are documented here. Format loosely follows
 semantic versioning. Most releases track a moss runtime bump; the moss changelog
 has the transport/protocol detail.
 
+## [0.8.3] - 2026-07-29
+
+### Changed
+- **Bundled moss → v0.8.18: application delivery no longer stalls the read
+  loop.** Delivery to the application was fed from one shared queue drained by a
+  single goroutine, and the send into it blocked. So a file transfer's chunks
+  filled the queue, the reader stopped reading, and the transport's 256-packet
+  inbound buffer overflowed — silently discarding whatever arrived next,
+  including the pings a session dies six of. Measured on a live pair:
+  `stream_drops = 36`, transfers stuck at 63%, sessions dying at ~37s on a
+  healthy link.
+
+  A relay carries other people's transfers by definition, so it is the box this
+  hurts most. Delivery now runs one queue and one worker per channel, and the
+  enqueue never blocks: a dropped message is bounded and counted
+  (`__local_delivery_dropped__`), a stalled reader is neither.
+
+  The bump also carries v0.8.17's `Moss_Version`, which does nothing for a spore
+  — it is for hosts that load the library by path.
+
 ## [0.8.2] - 2026-07-28
 
 ### Changed
