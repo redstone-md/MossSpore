@@ -5,6 +5,29 @@ All notable changes to MossSpore are documented here. Format loosely follows
 semantic versioning. Most releases track a moss runtime bump; the moss changelog
 has the transport/protocol detail.
 
+## [0.8.2] - 2026-07-28
+
+### Changed
+- **Bundled moss → v0.8.16: a closing UDP session no longer kills the daemon.**
+  The listener read loop and a session close race, and the loser sent on a
+  channel that had just been closed — `panic: send on closed channel`. moss is
+  linked in as a shared library, so that panic took the whole spore process
+  down, not one session. A relay closes sessions constantly, which made this the
+  single likeliest cause of an unexplained restart.
+
+  The same bump fixes topic rendezvous, which spores serve on behalf of the
+  fleet. Across 14 days of telemetry, 86% of all lookups queried an empty
+  routing table and found nothing; with a populated one, 22% found a subscriber
+  and 90% of those reached it. Two causes, both fixed: the table was seeded only
+  by a 30s timer while clients look within seconds of startup, and a mesh full
+  of peers grafted-but-unconfirmed read as complete — suppressing both discovery
+  and the grafting of the one peer actually on the topic. On a live pair,
+  inbound PRUNEs went 16,933 to 0 and average routing contacts 0 to 7.78.
+
+  New telemetry rides along: `seed_*` counters name which gate empties a routing
+  table, and `topic_key`/`topic_keys` let a lookup and a store be compared
+  rather than assumed to agree.
+
 ## [0.8.1] - 2026-07-17
 
 ### Changed
