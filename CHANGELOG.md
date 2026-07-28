@@ -7,23 +7,25 @@ has the transport/protocol detail.
 
 ## [0.8.3] - 2026-07-29
 
+**Nothing in this release changes how a spore behaves.** It exists so the
+bundled runtime does not drift; there is no reason to restart a healthy relay
+for it. Take it at the next restart you were going to do anyway.
+
 ### Changed
-- **Bundled moss → v0.8.18: application delivery no longer stalls the read
-  loop.** Delivery to the application was fed from one shared queue drained by a
-  single goroutine, and the send into it blocked. So a file transfer's chunks
-  filled the queue, the reader stopped reading, and the transport's 256-packet
-  inbound buffer overflowed — silently discarding whatever arrived next,
-  including the pings a session dies six of. Measured on a live pair:
-  `stream_drops = 36`, transfers stuck at 63%, sessions dying at ~37s on a
-  healthy link.
+- **Bundled moss v0.8.16 → v0.8.18.** Neither version in between touches a path
+  a spore uses:
 
-  A relay carries other people's transfers by definition, so it is the box this
-  hurts most. Delivery now runs one queue and one worker per channel, and the
-  enqueue never blocks: a dropped message is bounded and counted
-  (`__local_delivery_dropped__`), a stalled reader is neither.
+  - v0.8.17 adds `Moss_Version`, for hosts that resolve the shared library by
+    path at runtime and can end up loading an old copy. A spore links moss as a
+    Go module, so it cannot have that problem.
+  - v0.8.18 stops application delivery from stalling the read loop. That path
+    begins at `deliverLocal`, which returns immediately unless the node is a
+    local subscriber to the channel — and a spore subscribes to nothing. It
+    relays payloads through `handleRelayData` instead, which never enters the
+    delivery queue. The fix matters to clients; on a relay it is inert.
 
-  The bump also carries v0.8.17's `Moss_Version`, which does nothing for a spore
-  — it is for hosts that load the library by path.
+  What did fix relays was v0.8.16 (the UDP-close panic that took whole
+  processes down, plus topic rendezvous), and 0.8.2 already carries it.
 
 ## [0.8.2] - 2026-07-28
 
