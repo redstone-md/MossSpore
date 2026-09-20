@@ -5,6 +5,34 @@ All notable changes to MossSpore are documented here. Format loosely follows
 semantic versioning. Most releases track a moss runtime bump; the moss changelog
 has the transport/protocol detail.
 
+## [0.8.4] - 2026-09-20
+
+### Changed
+- **Bundled moss → 27dcdd3, the commit past v0.8.30: masq, and the long-run
+  goroutine-leak fix.** Nothing else in this release changes how a spore
+  behaves; take it at the next restart you were going to do anyway.
+  - **Masq, on by default.** Every peer-to-peer TCP leg now rides a
+    Chrome-shaped uTLS stream, and the plain Noise TCP ear is gone. A relay
+    is a public ear, and a plain TCP listener is a fingerprint an on-path
+    DPI can reset — masq removes it. Two stock nodes interoperate without
+    coordinating anything (shared default cover SNI). The trade is
+    deliberate: peers from before masq can no longer connect over TCP; UDP
+    paths are unchanged.
+  - **The goroutine-leak fix.** The UDP write path carries no write
+    deadline, so a full send buffer parks the writer holding the write
+    mutex; on the measured box a parked query wedged the batch wait (a
+    150-minute overlay stall) and bootstrap dials leaked 266k goroutines
+    over 5 hours. The fix bounds the waiters: 4s per query, 12s per batch,
+    ctx.Done in the bootstrap loop. The parked syscall itself stays
+    unbounded upstream — the documented next escalation there is a write
+    deadline on the UDP socket.
+  - Also riding: the masq accept-loop race that could crash the host, a
+    nil-context guard on the dial path, and Windows wintun fixes.
+
+  Pinned to the commit, not a tag: upstream has not cut v0.8.31 yet, and
+  waiting for it costs a relay the leak fix. Same exception mosh documented
+  on its own bump.
+
 ## [0.8.3] - 2026-07-29
 
 **Nothing in this release changes how a spore behaves.** It exists so the

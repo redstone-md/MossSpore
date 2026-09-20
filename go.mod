@@ -4,7 +4,7 @@ go 1.25.0
 
 toolchain go1.25.9
 
-require github.com/redstone-md/moss v0.8.18
+require github.com/redstone-md/moss v0.8.31-0.20260919143019-27dcdd39164f
 
 require (
 	github.com/alecthomas/atomic v0.1.0-alpha2 // indirect
